@@ -394,10 +394,6 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <button class="arrow" onclick="next()">&#8594;</button>
     </div>
   </div>
-  <div class="delivery-pill">
-    <span class="big">3-7</span>
-    <span class="small">Working Days<br>Delivery</span>
-  </div>
 </section>
 
 <!-- TRACKING -->
@@ -886,14 +882,6 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
         <a href="#terms" onclick="document.getElementById('pol-privacy').style.display='block';" style="color:var(--orange);font-weight:700;text-decoration:underline;">Terms &amp; Conditions</a>
       </div>
 
-      <!-- Acceptance checkboxes -->
-      <div style="margin-bottom:16px;">
-        <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--navy-dark);cursor:pointer;margin-bottom:10px;line-height:1.6;">
-          <input type="checkbox" id="chk-insurance" onchange="checkConsentReady()" style="margin-top:3px;accent-color:var(--orange);width:16px;height:16px;flex-shrink:0;">
-          I have read and accept the <a href="#terms" onclick="document.getElementById('pol-insurance').style.display='block';" style="color:var(--orange);text-decoration:underline;">Insurance Policy</a> and <a href="#terms" onclick="document.getElementById('pol-privacy').style.display='block';" style="color:var(--orange);text-decoration:underline;">Terms &amp; Conditions</a>.
-        </label>
-      </div>
-
       <!-- Customer Acknowledgement & Consent -->
       <div style="background:var(--gray);border-radius:10px;padding:20px;margin-bottom:16px;">
         <p style="font-size:14px;font-weight:700;color:var(--navy-dark);margin-bottom:14px;">Customer Acknowledgement &amp; Consent</p>
@@ -1169,7 +1157,7 @@ function checkConsentReady(){
   var a2=document.getElementById('chk-a2');
   var a3=document.getElementById('chk-a3');
   var a4=document.getElementById('chk-a4');
-  var all=ins&&ins.checked&&a1&&a1.checked&&a2&&a2.checked&&a3&&a3.checked&&a4&&a4.checked;
+  var all=a1&&a1.checked&&a2&&a2.checked&&a3&&a3.checked&&a4&&a4.checked;
   var btn=document.getElementById('quoteBtnEl');
   var warn=document.getElementById('consent-warning');
   if(btn){btn.disabled=!all;btn.style.opacity=all?'1':'0.5';btn.style.cursor=all?'pointer':'not-allowed';}
@@ -1300,7 +1288,7 @@ async function doTrack(){
 
 // ===== QUOTE FORM =====
 async function submitQuote(){
-  var allChecked=document.getElementById('chk-insurance').checked&&document.getElementById('chk-a1').checked&&document.getElementById('chk-a2').checked&&document.getElementById('chk-a3').checked&&document.getElementById('chk-a4').checked;
+  var allChecked=document.getElementById('chk-a1').checked&&document.getElementById('chk-a2').checked&&document.getElementById('chk-a3').checked&&document.getElementById('chk-a4').checked;
   if(!allChecked){document.getElementById('consent-warning').style.display='block';return;}
   const name=document.getElementById('q-name').value.trim();
   const email=document.getElementById('q-email').value.trim();
