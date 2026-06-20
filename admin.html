@@ -646,19 +646,6 @@ function getStageName(freightType,statusIndex){
   return stages[parseInt(statusIndex)]?stages[parseInt(statusIndex)].label:'Unknown';
 }
 
-function getStages(freightType){
-  return TRACKING_STAGES;
-}
-
-function getDeliveryTime(freightType){
-  const type=(freightType||'').toLowerCase();
-  return type.includes('sea')||type.includes('groupage')?'4 to 8 weeks':'3 to 7 working days';
-}
-
-function getStageName(freightType,statusIndex){
-  return TRACKING_STAGES[parseInt(statusIndex)]?TRACKING_STAGES[parseInt(statusIndex)].label:'Unknown';
-}
-
 
 
 let CONFIG={
