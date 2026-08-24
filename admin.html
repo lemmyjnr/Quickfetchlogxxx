@@ -254,11 +254,19 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
     </div>
 
     <div id="standaloneVerifyLogin" style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-      <h3 style="font-size:16px;font-weight:800;color:#0D1B3E;margin-bottom:6px;">Staff Login Required</h3>
-      <p style="font-size:12px;color:#666;margin-bottom:16px;">Enter the admin password to view this shipment's details.</p>
-      <input type="password" id="standaloneVerifyPw" placeholder="Enter admin password" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')doStandaloneVerifyLogin()"/>
-      <div id="standaloneVerifyErr" style="display:none;color:#dc2626;font-size:12px;margin-bottom:12px;">Incorrect password. Try again.</div>
-      <button onclick="doStandaloneVerifyLogin()" style="width:100%;background:#0D1B3E;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">View Shipment Details</button>
+      <h3 style="font-size:16px;font-weight:800;color:#0D1B3E;margin-bottom:6px;">Staff / Driver Login Required</h3>
+      <p style="font-size:12px;color:#666;margin-bottom:16px;">Sign in with your account to view or update this shipment.</p>
+      <input type="text" id="standaloneVerifyUser" placeholder="Username" autocomplete="username" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:10px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('standaloneVerifyPw').focus()"/>
+      <input type="password" id="standaloneVerifyPw" placeholder="Password" autocomplete="current-password" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')doStandaloneVerifyLogin()"/>
+      <div id="standaloneVerifyErr" style="display:none;color:#dc2626;font-size:12px;margin-bottom:12px;">Incorrect username or password.</div>
+      <button onclick="doStandaloneVerifyLogin()" style="width:100%;background:#0D1B3E;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Login</button>
+    </div>
+
+    <div id="standaloneVerifySearch" style="display:none;background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.06);margin-bottom:16px;">
+      <h3 style="font-size:14px;font-weight:800;color:#0D1B3E;margin-bottom:10px;">Look up a shipment</h3>
+      <input type="text" id="standaloneVerifySearchInput" placeholder="Enter or scan tracking number" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:10px;box-sizing:border-box;text-transform:uppercase;" onkeydown="if(event.key==='Enter')loadVerifyShipment(document.getElementById('standaloneVerifySearchInput').value)"/>
+      <button onclick="loadVerifyShipment(document.getElementById('standaloneVerifySearchInput').value)" style="width:100%;background:#F47920;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Look Up</button>
+      <button onclick="logout()" style="width:100%;background:none;border:none;color:#666;font-size:12px;padding:10px;cursor:pointer;text-decoration:underline;">Log out</button>
     </div>
 
     <div id="standaloneVerifyContent" style="display:none;background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.06);"></div>
@@ -275,11 +283,13 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       </div>
     </div>
     <h2>Admin Login</h2>
-    <p>Enter your password to access the dashboard</p>
-    <div class="login-err" id="loginErr">Incorrect password. Please try again.</div>
+    <p>Sign in with your admin account</p>
+    <div class="login-err" id="loginErr">Incorrect username or password.</div>
+    <label>Username</label>
+    <input type="text" id="userInput" placeholder="Enter your username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('pwInput').focus()"/>
     <label>Password</label>
-    <input type="password" id="pwInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()"/>
-    <button class="login-btn" onclick="login()">Login to Dashboard</button>
+    <input type="password" id="pwInput" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"/>
+    <button class="login-btn" id="loginBtnEl" onclick="login()">Login to Dashboard</button>
   </div>
 </div>
 
@@ -341,6 +351,9 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <a onclick="showPage('settings')" id="nav-settings">
         <span class="nav-icon">⚙️</span> Settings
       </a>
+      <a onclick="showPage('users')" id="nav-users">
+        <span class="nav-icon">👤</span> Users & Activity
+      </a>
     </nav>
     <div class="sidebar-bottom">
       <button class="logout-btn" onclick="logout()">
@@ -355,7 +368,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <h1 id="pageTitle">Dashboard</h1>
       <div class="topbar-right">
         <button class="refresh-btn" onclick="loadShipments()">↻ Refresh</button>
-        <div class="topbar-user">Logged in as <strong>Admin</strong></div>
+        <div class="topbar-user" id="topbarUser">Logged in as <strong>Admin</strong></div>
       </div>
     </div>
 
@@ -636,8 +649,8 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
             <button class="submit-btn" onclick="updateApiUrl()">Update Connection</button>
           </div>
           <div class="settings-card">
-            <h3>Change Admin Password</h3>
-            <p>Update the password used to access this admin panel.</p>
+            <h3>Change My Password</h3>
+            <p>Update the password for your own admin account (<span id="myUsernameLabel">-</span>).</p>
             <div class="fg">
               <label>Current Password</label>
               <input type="password" id="curPw" placeholder="Current password"/>
@@ -703,6 +716,57 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
               <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text);">Client</span><strong>QuickFetch Logistics</strong></div>
               <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text);">Built by</span><strong style="color:var(--orange);">TRINARY Digital Lab</strong></div>
               <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;"><span style="color:var(--text);">Database</span><strong>Google Sheets via Apps Script</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS & ACTIVITY PAGE -->
+      <div class="page" id="page-users">
+        <div class="settings-grid">
+          <div class="settings-card" id="manageUsersCard" style="display:none;">
+            <h3>Admin Users</h3>
+            <p>Everyone who can log into this dashboard, and their permission level.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th></th></tr></thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="settings-card" id="addUserCard" style="display:none;">
+            <h3>Add a User</h3>
+            <p>Create a login for a new team member.</p>
+            <div class="fg">
+              <label>Username</label>
+              <input type="text" id="nu-username" placeholder="e.g. jane"/>
+            </div>
+            <div class="fg">
+              <label>Full Name</label>
+              <input type="text" id="nu-fullname" placeholder="e.g. Jane Okafor"/>
+            </div>
+            <div class="fg">
+              <label>Temporary Password</label>
+              <input type="password" id="nu-password" placeholder="They can change this after logging in"/>
+            </div>
+            <div class="fg">
+              <label>Role</label>
+              <select id="nu-role">
+                <option value="Staff">Staff — can add/update shipments</option>
+                <option value="Driver">Driver — can only confirm deliveries (scan/lookup only)</option>
+                <option value="Admin">Admin — full access, can manage users</option>
+              </select>
+            </div>
+            <button class="submit-btn" onclick="addUser()">Create User</button>
+          </div>
+          <div class="settings-card" style="grid-column:1/-1;">
+            <h3>Activity Log</h3>
+            <p>Every add / update / delete on this dashboard, watermarked with who did it and when.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Tracking #</th><th>Details</th></tr></thead>
+                <tbody id="activityTableBody"></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -915,6 +979,94 @@ let CONFIG={
   scriptUrl: 'https://script.google.com/macros/s/AKfycbzShKdT67ekwhIaLLrKyiIKkN4FEx7W1GwHO6z5mpBhGSuYNbl9_1HjYRRkiXc4MhBKPQ/exec'
 };
 
+// ===== USER SESSION / AUTH =====
+let currentSession=null; // {token, username, full_name, role}
+
+async function sha256Hex(str){
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function loadSession(){
+  try{
+    const raw=localStorage.getItem('qf_session');
+    return raw?JSON.parse(raw):null;
+  }catch(e){return null;}
+}
+function saveSession(session){
+  currentSession=session;
+  localStorage.setItem('qf_session',JSON.stringify(session));
+}
+function clearSession(){
+  currentSession=null;
+  localStorage.removeItem('qf_session');
+}
+function isAdminRole(){
+  return !!(currentSession && currentSession.role==='Admin');
+}
+
+// Every write action goes through this so the person who did it is always
+// attached, and so we notice if an admin has force-logged-out this session.
+async function postToScript(action,payload){
+  const body=Object.assign({action},payload||{});
+  if(currentSession){
+    body.updated_by=currentSession.full_name;
+    body.username=currentSession.username;
+    body.session_token=currentSession.token;
+  }
+  const res=await fetch(CONFIG.scriptUrl,{
+    method:'POST',redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(body)
+  });
+  const data=await res.json();
+  if(data && data.session_invalid){
+    showToast('Your session was ended by an admin. Please log in again.','error');
+    logout();
+  }
+  return data;
+}
+
+// Records an action in the Activity Log without blocking the action itself -
+// fire-and-forget so a logging hiccup never stops a real shipment update.
+function logActivity(actionLabel,trackingNumber,details){
+  if(!currentSession) return;
+  fetch(CONFIG.scriptUrl,{
+    method:'POST',redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      action:'logActivity',
+      username:currentSession.username,
+      full_name:currentSession.full_name,
+      role:currentSession.role,
+      session_token:currentSession.token,
+      activity_action:actionLabel,
+      tracking_number:trackingNumber||'',
+      details:details||''
+    })
+  }).catch(e=>console.error('Activity log failed:',e));
+}
+
+// Checks with the server that this session hasn't been force-logged-out by an
+// admin. Runs on load and periodically while the dashboard is open.
+async function validateSession(){
+  if(!currentSession) return;
+  try{
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'validateSession',session_token:currentSession.token,username:currentSession.username})
+    });
+    const data=await res.json();
+    if(!data || !data.valid){
+      showToast('Your session has ended. Please log in again.','error');
+      logout();
+    }
+  }catch(e){
+    console.error('Session check failed:',e);
+  }
+}
+
 // ===== STANDALONE VERIFY INTERCEPT (runs immediately, independent of login/dashboard flow) =====
 const __verifyParam = new URLSearchParams(window.location.search).get('verify');
 if(__verifyParam){
@@ -924,15 +1076,53 @@ if(__verifyParam){
 }
 
 async function doStandaloneVerifyLogin(){
+  const username=document.getElementById('standaloneVerifyUser').value.trim();
   const pw=document.getElementById('standaloneVerifyPw').value;
   const err=document.getElementById('standaloneVerifyErr');
-  if(pw!==CONFIG.password){
+  err.style.display='none';
+  if(!username||!pw){
+    err.textContent='Please enter your username and password.';
     err.style.display='block';
     return;
   }
-  err.style.display='none';
+  try{
+    const password_hash=await sha256Hex(pw);
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'login',username,password_hash})
+    });
+    const data=await res.json();
+    if(!data || !data.success){
+      err.textContent=(data&&data.error)||'Incorrect username or password.';
+      err.style.display='block';
+      return;
+    }
+    saveSession({token:data.token,username:data.username,full_name:data.full_name,role:data.role});
+  } catch(e){
+    err.textContent='Could not reach the server. Check your connection and try again.';
+    err.style.display='block';
+    return;
+  }
+
   document.getElementById('standaloneVerifyLogin').style.display='none';
+
+  if(__verifyParam){
+    // Came from a scanned QR code on a label - go straight to that shipment
+    loadVerifyShipment(__verifyParam);
+  } else {
+    // A Driver (or anyone) opened this portal directly - let them look one up
+    document.getElementById('standaloneVerifySearch').style.display='block';
+  }
+}
+
+async function loadVerifyShipment(trackingNumberInput){
   const contentBox=document.getElementById('standaloneVerifyContent');
+  const target=(trackingNumberInput||'').trim().toUpperCase();
+  if(!target){
+    showToast('Enter a tracking number first','error');
+    return;
+  }
   contentBox.style.display='block';
   contentBox.innerHTML='<p style="text-align:center;color:#666;font-size:13px;padding:20px 0;">Loading shipment details...</p>';
 
@@ -940,7 +1130,6 @@ async function doStandaloneVerifyLogin(){
     const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
     const data=await res.json();
     const list=Array.isArray(data)?data:[];
-    const target=__verifyParam.trim().toUpperCase();
     const s=list.find(x=>x.tracking_number&&x.tracking_number.trim().toUpperCase()===target);
 
     if(!s){
@@ -952,52 +1141,153 @@ async function doStandaloneVerifyLogin(){
         </div>`;
       return;
     }
-
-    const fullAddress=[s.delivery_address_line1,s.delivery_address_line2,s.delivery_city,s.delivery_county,s.delivery_postcode].filter(Boolean).join(', ')||'No address on file';
-    const stageName=s.update_title||'In Progress';
-
-    contentBox.innerHTML=`
-      <div style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:10px;padding:12px;margin-bottom:20px;text-align:center;">
-        <div style="font-size:13px;font-weight:700;color:#16a34a;">✓ Verified QuickFetch Shipment</div>
-      </div>
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:4px;">Tracking Number</div>
-        <div style="font-family:'Courier New',monospace;font-size:20px;font-weight:900;color:#0D1B3E;">${s.tracking_number}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Recipient</div>
-          <div style="font-size:15px;font-weight:800;color:#0D1B3E;">${s.full_name||'-'}</div>
-        </div>
-        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Phone</div>
-          <div style="font-size:15px;font-weight:800;color:#0D1B3E;">${s.phone||'-'}</div>
-        </div>
-        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Delivery Address</div>
-          <div style="font-size:13px;font-weight:700;color:#0D1B3E;line-height:1.5;">${fullAddress}</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-            <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Freight</div>
-            <div style="font-size:13px;font-weight:800;color:#0D1B3E;">${s.freight_type||'-'}</div>
-          </div>
-          <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-            <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Weight</div>
-            <div style="font-size:13px;font-weight:800;color:#0D1B3E;">${s.weight?s.weight+'kg':'-'}</div>
-          </div>
-        </div>
-        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Route</div>
-          <div style="font-size:13px;font-weight:800;color:#0D1B3E;">${s.origin||'?'} → ${s.destination||'?'}</div>
-        </div>
-        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Current Status</div>
-          <div style="font-size:13px;font-weight:800;color:#F47920;">${stageName}</div>
-        </div>
-      </div>`;
+    renderVerifyCard(s,contentBox);
   }catch(e){
     contentBox.innerHTML=`<p style="text-align:center;color:#dc2626;font-size:13px;padding:20px 0;">Could not load shipment details. Check your connection and try again.</p>`;
+  }
+}
+
+function renderVerifyCard(s,contentBox){
+  const fullAddress=[s.delivery_address_line1,s.delivery_address_line2,s.delivery_city,s.delivery_county,s.delivery_postcode].filter(Boolean).join(', ')||'No address on file';
+  const stageName=s.update_title||'In Progress';
+  const stages=getStages(s);
+  const isAlreadyDelivered=parseInt(s.status)===stages.length-1;
+
+  contentBox.innerHTML=`
+    <div style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:10px;padding:12px;margin-bottom:20px;text-align:center;">
+      <div style="font-size:13px;font-weight:700;color:#16a34a;">✓ Verified QuickFetch Shipment</div>
+    </div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:4px;">Tracking Number</div>
+      <div style="font-family:'Courier New',monospace;font-size:20px;font-weight:900;color:#0D1B3E;">${s.tracking_number}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Recipient</div>
+        <div style="font-size:15px;font-weight:800;color:#0D1B3E;">${s.full_name||'-'}</div>
+      </div>
+      <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Phone</div>
+        <div style="font-size:15px;font-weight:800;color:#0D1B3E;">${s.phone||'-'}</div>
+      </div>
+      <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Delivery Address</div>
+        <div style="font-size:13px;font-weight:700;color:#0D1B3E;line-height:1.5;">${fullAddress}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Freight</div>
+          <div style="font-size:13px;font-weight:800;color:#0D1B3E;">${s.freight_type||'-'}</div>
+        </div>
+        <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Weight</div>
+          <div style="font-size:13px;font-weight:800;color:#0D1B3E;">${s.weight?s.weight+'kg':'-'}</div>
+        </div>
+      </div>
+      <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Route</div>
+        <div style="font-size:13px;font-weight:800;color:#0D1B3E;">${s.origin||'?'} → ${s.destination||'?'}</div>
+      </div>
+      <div style="background:#f5f6fa;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:3px;">Current Status</div>
+        <div style="font-size:13px;font-weight:800;color:#F47920;">${stageName}</div>
+      </div>
+    </div>
+    ${isAlreadyDelivered?`
+    <div style="margin-top:20px;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:13px;font-weight:700;color:#16a34a;">✓ This shipment is already marked Delivered</div>
+    </div>` : (currentSession?`
+    <div style="margin-top:20px;border-top:1px solid #eee;padding-top:20px;">
+      <h4 style="font-size:13px;font-weight:800;color:#0D1B3E;margin-bottom:12px;">📬 Confirm Delivery</h4>
+      <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Delivery Date & Time</label>
+      <input type="datetime-local" id="verifyDeliveredDatetime" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;"/>
+      <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Proof of Delivery Photo (optional)</label>
+      <input type="file" id="verifyDeliveredPhoto" accept="image/*" style="width:100%;margin-bottom:14px;"/>
+      <button id="verifyDeliverBtn" onclick='confirmDeliveryFromVerify(${JSON.stringify(s.tracking_number)})' style="width:100%;background:#16a34a;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Mark as Delivered</button>
+    </div>`:'')}
+  `;
+  const dtInput=document.getElementById('verifyDeliveredDatetime');
+  if(dtInput){
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    dtInput.value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+}
+
+async function confirmDeliveryFromVerify(trackingNumber){
+  const btn=document.getElementById('verifyDeliverBtn');
+  const contentBox=document.getElementById('standaloneVerifyContent');
+  try{
+    btn.disabled=true;btn.textContent='Marking as delivered...';
+    const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
+    const data=await res.json();
+    const list=Array.isArray(data)?data:[];
+    const s=list.find(x=>x.tracking_number&&x.tracking_number.trim().toUpperCase()===trackingNumber.trim().toUpperCase());
+    if(!s){showToast('Shipment not found','error');return;}
+
+    const stages=getStages(s);
+    const finalIndex=stages.length-1;
+    const finalStage=stages[finalIndex];
+    const newTime=formatUkTimestamp();
+
+    let history=[];
+    try{
+      if(s.tracking_history){
+        const parsed=JSON.parse(s.tracking_history);
+        if(Array.isArray(parsed)) history=parsed;
+      }
+    }catch(e){history=[];}
+    history=history.filter(item=>String(item.status)!==String(finalIndex));
+    history.push({status:String(finalIndex),title:finalStage.label,location:finalStage.location,activity:finalStage.desc,time:newTime});
+    history.sort((a,b)=>parseInt(a.status)-parseInt(b.status));
+
+    const payload={
+      action:'updateStatus',
+      tracking_number:s.tracking_number,
+      status:String(finalIndex),
+      route_code:getRouteCode(s),
+      update_title:finalStage.label,
+      update_location:finalStage.location,
+      update_activity:finalStage.desc,
+      update_time:newTime,
+      tracking_history:JSON.stringify(history)
+    };
+    if(currentSession){
+      payload.updated_by=currentSession.full_name;
+      payload.username=currentSession.username;
+      payload.session_token=currentSession.token;
+    }
+
+    const updateRes=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(payload)
+    });
+
+    if(updateRes.ok){
+      showToast('Shipment marked as Delivered','success');
+      logActivity('Confirmed Delivery (scan)',s.tracking_number,'Marked delivered via QR/verify portal');
+
+      const dtVal=document.getElementById('verifyDeliveredDatetime').value;
+      const deliveredDate=dtVal?formatEmailTimestamp(new Date(dtVal)):formatEmailTimestamp();
+      const photoInput=document.getElementById('verifyDeliveredPhoto');
+      const updatedShipment=Object.assign({},s,{
+        status:String(finalIndex),
+        update_title:finalStage.label,
+        update_location:finalStage.location,
+        update_activity:finalStage.desc
+      });
+      await sendDeliveredEmail(updatedShipment,{deliveredDate,photoInput});
+
+      renderVerifyCard(updatedShipment,contentBox);
+    } else {
+      showToast('Could not update shipment. Check your connection and try again.','error');
+      btn.disabled=false;btn.textContent='Mark as Delivered';
+    }
+  } catch(e){
+    console.error('confirmDeliveryFromVerify failed:',e);
+    showToast('Something went wrong. Check your connection and try again.','error');
+    if(btn){btn.disabled=false;btn.textContent='Mark as Delivered';}
   }
 }
 
@@ -1409,38 +1699,103 @@ let selectedStatus=null;
 
 // ===== INIT =====
 window.onload=function(){
-  const loggedIn=sessionStorage.getItem('qf_admin_logged_in');
-  if(loggedIn==='true'){
+  const session=loadSession();
+  if(session && session.token){
+    currentSession=session;
     showAdmin();
+    validateSession();
   }
 };
 
 // ===== LOGIN =====
-function login(){
+async function login(){
+  const username=document.getElementById('userInput').value.trim();
   const pw=document.getElementById('pwInput').value;
   const err=document.getElementById('loginErr');
-  if(pw===CONFIG.password){
-    sessionStorage.setItem('qf_admin_logged_in','true');
-    err.style.display='none';
-    showAdmin();
-  } else {
+  const btn=document.getElementById('loginBtnEl');
+  err.style.display='none';
+  if(!username||!pw){
+    err.textContent='Please enter your username and password.';
     err.style.display='block';
-    document.getElementById('pwInput').value='';
+    return;
+  }
+  btn.disabled=true;btn.textContent='Signing in...';
+  try{
+    const password_hash=await sha256Hex(pw);
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'login',username,password_hash})
+    });
+    const data=await res.json();
+    if(data && data.success){
+      saveSession({token:data.token,username:data.username,full_name:data.full_name,role:data.role});
+      document.getElementById('pwInput').value='';
+      showAdmin();
+    } else {
+      err.textContent=(data&&data.error)||'Incorrect username or password.';
+      err.style.display='block';
+      document.getElementById('pwInput').value='';
+    }
+  } catch(e){
+    console.error('Login failed:',e);
+    err.textContent='Could not reach the server. Check your connection and try again.';
+    err.style.display='block';
+  } finally {
+    btn.disabled=false;btn.textContent='Login to Dashboard';
   }
 }
 
 function logout(){
-  sessionStorage.removeItem('qf_admin_logged_in');
+  if(currentSession){
+    fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'logout',session_token:currentSession.token,username:currentSession.username})
+    }).catch(e=>console.error('Logout call failed:',e));
+  }
+  clearSession();
   document.getElementById('adminPanel').style.display='none';
+  document.getElementById('standaloneVerify').style.display='none';
+  document.getElementById('standaloneVerifyLogin').style.display='block';
+  document.getElementById('standaloneVerifySearch').style.display='none';
+  document.getElementById('standaloneVerifyContent').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('userInput').value='';
   document.getElementById('pwInput').value='';
 }
+
+// Re-checks with the server every 2 minutes so a force-logout by an admin
+// takes effect for the other user within a couple of minutes, not just on
+// their next write action.
+setInterval(()=>{ if(currentSession) validateSession(); },120000);
 
 // ===== ADMIN =====
 function showAdmin(){
   document.getElementById('loginScreen').style.display='none';
+
+  // Drivers never see the full dashboard - only the scan/search + deliver tool,
+  // so their account really can only confirm deliveries, nothing else.
+  if(currentSession && currentSession.role==='Driver'){
+    document.getElementById('adminPanel').style.display='none';
+    document.getElementById('standaloneVerify').style.display='block';
+    document.getElementById('standaloneVerifyLogin').style.display='none';
+    document.getElementById('standaloneVerifySearch').style.display='block';
+    return;
+  }
+
   document.getElementById('adminPanel').style.display='flex';
   document.getElementById('apiUrlDisplay').textContent='Connected via Google Apps Script';
+  if(currentSession){
+    document.getElementById('topbarUser').innerHTML=`Logged in as <strong>${currentSession.full_name}</strong> (${currentSession.role})`;
+    const myLabel=document.getElementById('myUsernameLabel');
+    if(myLabel) myLabel.textContent=currentSession.username;
+    document.getElementById('nav-users').style.display=isAdminRole()?'flex':'none';
+    const manageCard=document.getElementById('manageUsersCard');
+    if(manageCard) manageCard.style.display=isAdminRole()?'block':'none';
+    const addUserCard=document.getElementById('addUserCard');
+    if(addUserCard) addUserCard.style.display=isAdminRole()?'block':'none';
+  }
   generateTrackingNumber();
   onFreightChange();
   renderStageReference();
@@ -1474,11 +1829,15 @@ function showPage(page){
   const navKey = (page==='batch-detail') ? 'batches' : (page==='verify' ? '' : page);
   const navEl = document.getElementById('nav-'+navKey);
   if(navEl) navEl.classList.add('active');
-  const titles={dashboard:'Dashboard',shipments:'All Shipments',add:'Add New Shipment',batches:'Shipment Batches','batch-detail':'Batch Details',requests:'Quote Requests',settings:'Settings',verify:'Shipment Verification'};
+  const titles={dashboard:'Dashboard',shipments:'All Shipments',add:'Add New Shipment',batches:'Shipment Batches','batch-detail':'Batch Details',requests:'Quote Requests',settings:'Settings',users:'Users & Activity',verify:'Shipment Verification'};
   document.getElementById('pageTitle').textContent=titles[page]||'';
   if(page==='add')generateTrackingNumber();
   if(page==='requests')loadRequests();
   if(page==='batches')renderBatches();
+  if(page==='users'){
+    if(isAdminRole()) loadUsers();
+    loadActivityLog();
+  }
 }
 
 let currentBatchId=null;
@@ -1554,7 +1913,7 @@ function renderTableBody(id,data,full){
         <td>${formatDateDisplay(s.created_date)}</td>
         <td><div class="td-actions" onclick="event.stopPropagation();">
           <button class="action-btn edit" onclick="openEditModal('${s.tracking_number}')">Update</button>
-          <button class="action-btn delete" onclick="deleteShipment('${s.tracking_number}')">Delete</button>
+          ${isAdminRole()?`<button class="action-btn delete" onclick="deleteShipment('${s.tracking_number}')">Delete</button>`:''}
           <button class="action-btn" style="background:rgba(27,45,107,0.08);color:var(--navy-dark);" onclick="printShipmentLabel('${s.tracking_number}')">🏷️ Print Label</button>
           ${s.phone?`<a class="action-btn" style="background:rgba(37,211,102,0.1);color:#1da851;text-decoration:none;" href="${waLink}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
           ${s.email?`<button class="action-btn" style="background:rgba(244,121,32,0.1);color:var(--orange);" onclick="resendEmail('${s.tracking_number}')">📧 Email</button>`:''}
@@ -1749,6 +2108,7 @@ async function addShipment(){
     const result=await res.json();
     if(result&&result.success){
       showToast(`Shipment ${tracking} created successfully`,'success');
+      logActivity('Added Shipment',tracking,`${freight}: ${origin} to ${dest}`);
       sendTrackingEmail(newShipment);
       await loadShipments();
       showPage('shipments');
@@ -1988,6 +2348,7 @@ async function saveStatus(){
       const stages=getStages(s||'');
       const stageName=stages[selectedStatus]?stages[selectedStatus].label:'Updated';
       showToast(`Status updated: ${payload.update_title||stageName}`,'success');
+      logActivity('Updated Status',editingTracking,payload.update_title||stageName);
 
       // Auto-send a notification email for milestone stages (arrival / delivered),
       // detected generically so it works for every route, including the new
@@ -2312,6 +2673,7 @@ async function confirmBatchStatusUpdate(batchId){
       });
       if(res.ok){
         updated++;
+        logActivity('Batch Updated Status',s.tracking_number,stageInfo.label);
         // Auto-send milestone notification emails (arrival / delivered), detected
         // generically so it works across every route/stage-count.
         if(s.email){
@@ -2339,6 +2701,10 @@ async function confirmBatchStatusUpdate(batchId){
 
 // ===== DELETE =====
 async function deleteShipment(trackingNum){
+  if(!isAdminRole()){
+    showToast('Only Admin users can delete shipments.','error');
+    return;
+  }
   if(!trackingNum||trackingNum==='undefined'||trackingNum.trim()===''){
     showToast('Cannot delete: no tracking number on this row. Delete it directly from the Google Sheet.','error');
     return;
@@ -2352,6 +2718,7 @@ async function deleteShipment(trackingNum){
     });
     if(res.ok){
       showToast(`Shipment ${trackingNum} deleted`,'success');
+      logActivity('Deleted Shipment',trackingNum,'');
       await loadShipments();
     } else {
       showToast('Failed to delete. Try deleting directly from the Google Sheet.','error');
@@ -2366,20 +2733,153 @@ function updateApiUrl(){
   showToast('Connection is managed via Google Apps Script. Edit the script directly to change the connected sheet.','error');
 }
 
-function changePassword(){
+async function changePassword(){
   const cur=document.getElementById('curPw').value;
   const nw=document.getElementById('newPw').value;
   const confirm=document.getElementById('confirmPw').value;
-  if(cur!==CONFIG.password){showToast('Current password is incorrect','error');return;}
-  if(!nw){showToast('New password cannot be empty','error');return;}
-  if(nw!==confirm){showToast('Passwords do not match','error');return;}
-  CONFIG.password=nw;
-  localStorage.setItem('qf_password',nw);
-  showToast('Password updated successfully','success');
-  ['curPw','newPw','confirmPw'].forEach(id=>document.getElementById(id).value='');
+  if(!currentSession){showToast('You must be logged in to change your password','error');return;}
+  if(!cur||!nw){showToast('Please fill in all password fields','error');return;}
+  if(nw!==confirm){showToast('New passwords do not match','error');return;}
+  try{
+    const current_password_hash=await sha256Hex(cur);
+    const new_password_hash=await sha256Hex(nw);
+    const data=await postToScript('changePassword',{current_password_hash,new_password_hash});
+    if(data && data.success){
+      showToast('Password updated successfully','success');
+      ['curPw','newPw','confirmPw'].forEach(id=>document.getElementById(id).value='');
+    } else {
+      showToast((data&&data.error)||'Could not update password. Check your current password.','error');
+    }
+  } catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
 }
 
-// ===== QUOTE REQUESTS =====
+// ===== USERS & ACTIVITY LOG =====
+async function loadUsers(){
+  if(!isAdminRole())return;
+  try{
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'getUsers',session_token:currentSession.token,username:currentSession.username})
+    });
+    const data=await res.json();
+    renderUsersTable(Array.isArray(data.users)?data.users:[]);
+  } catch(e){
+    console.error('loadUsers failed:',e);
+    showToast('Could not load users list','error');
+  }
+}
+
+function renderUsersTable(users){
+  const tbody=document.getElementById('usersTableBody');
+  if(!users||users.length===0){
+    tbody.innerHTML=`<tr><td colspan="5" class="empty-state">No users yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=users.map(u=>`
+    <tr>
+      <td>${u.username}</td>
+      <td>${u.full_name||''}</td>
+      <td>${u.role||'Staff'}</td>
+      <td>${u.active===false?'<span style="color:var(--danger);">Deactivated</span>':(u.online?'<span style="color:#16a34a;">● Online</span>':'Offline')}</td>
+      <td style="white-space:nowrap;">
+        ${u.online?`<button class="action-btn" style="background:rgba(220,38,38,0.08);color:var(--danger);" onclick="forceLogoutUser('${u.username}')">Force Logout</button>`:''}
+        ${u.username!==currentSession.username?`<button class="action-btn delete" onclick="deactivateUser('${u.username}',${u.active===false})">${u.active===false?'Reactivate':'Deactivate'}</button>`:''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function addUser(){
+  if(!isAdminRole()){showToast('Only Admin users can add users','error');return;}
+  const username=document.getElementById('nu-username').value.trim();
+  const full_name=document.getElementById('nu-fullname').value.trim();
+  const password=document.getElementById('nu-password').value;
+  const role=document.getElementById('nu-role').value;
+  if(!username||!full_name||!password){
+    showToast('Please fill in username, full name and a temporary password','error');
+    return;
+  }
+  try{
+    const password_hash=await sha256Hex(password);
+    const data=await postToScript('addUser',{new_username:username,full_name,password_hash,role});
+    if(data && data.success){
+      showToast(`User ${username} created`,'success');
+      logActivity('Added User','',`Created user ${username} (${role})`);
+      ['nu-username','nu-fullname','nu-password'].forEach(id=>document.getElementById(id).value='');
+      loadUsers();
+    } else {
+      showToast((data&&data.error)||'Could not create user','error');
+    }
+  } catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
+}
+
+async function deactivateUser(username,reactivate){
+  if(!isAdminRole())return;
+  if(!confirm(`${reactivate?'Reactivate':'Deactivate'} ${username}?`))return;
+  try{
+    const data=await postToScript('deactivateUser',{target_username:username,active:!!reactivate});
+    if(data && data.success){
+      showToast(`${username} ${reactivate?'reactivated':'deactivated'}`,'success');
+      logActivity(reactivate?'Reactivated User':'Deactivated User','',username);
+      loadUsers();
+    } else {
+      showToast((data&&data.error)||'Could not update user','error');
+    }
+  } catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
+}
+
+async function forceLogoutUser(username){
+  if(!isAdminRole())return;
+  if(!confirm(`Log ${username} out of their current session?`))return;
+  try{
+    const data=await postToScript('forceLogout',{target_username:username});
+    if(data && data.success){
+      showToast(`${username} has been logged out`,'success');
+      logActivity('Force Logout','',username);
+      loadUsers();
+    } else {
+      showToast((data&&data.error)||'Could not log that user out','error');
+    }
+  } catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
+}
+
+async function loadActivityLog(){
+  try{
+    const res=await fetch(`${CONFIG.scriptUrl}?action=getActivityLog&limit=100`,{redirect:'follow'});
+    const data=await res.json();
+    renderActivityTable(Array.isArray(data.logs)?data.logs:[]);
+  } catch(e){
+    console.error('loadActivityLog failed:',e);
+  }
+}
+
+function renderActivityTable(logs){
+  const tbody=document.getElementById('activityTableBody');
+  if(!logs||logs.length===0){
+    tbody.innerHTML=`<tr><td colspan="5" class="empty-state">No activity recorded yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=logs.slice().reverse().map(l=>`
+    <tr>
+      <td style="white-space:nowrap;">${l.timestamp||''}</td>
+      <td>${l.full_name||l.username||''}</td>
+      <td>${l.activity_action||l.action||''}</td>
+      <td style="font-family:monospace;">${l.tracking_number||''}</td>
+      <td>${l.details||''}</td>
+    </tr>
+  `).join('');
+}
+
+
 let allRequests=[];
 
 async function loadRequests(){
