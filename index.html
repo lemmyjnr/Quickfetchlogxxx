@@ -458,6 +458,11 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
               <div class="track-meta-item"><label>Last Update</label><span id="tr-time"></span></div>
             </div>
           </div>
+          <div id="podWrap" style="display:none;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:10px;padding:16px;margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:8px;">✓ Delivered</div>
+            <div id="pod-received-by" style="font-size:13px;color:#166534;margin-bottom:4px;"></div>
+            <div id="pod-photo-wrap"></div>
+          </div>
           <div class="stages-wrap" id="stagesWrap"></div>
         </div>
       </div>
@@ -1492,6 +1497,17 @@ async function doTrack(){
     document.getElementById('tr-status').innerHTML='<span class="status-badge">'+title+'</span>';
     document.getElementById('tr-created').textContent=s.created_date||'-';
     document.getElementById('tr-time').textContent=updateTime;
+
+    // Show proof-of-delivery (photo + who received it) once the shipment is
+    // actually on its final ("Delivered") stage.
+    const podWrap=document.getElementById('podWrap');
+    if(step===maxStage && (s.proof_of_delivery_url||s.received_by)){
+      podWrap.style.display='block';
+      document.getElementById('pod-received-by').innerHTML=s.received_by?`<strong>Received by:</strong> ${s.received_by}`:'';
+      document.getElementById('pod-photo-wrap').innerHTML=s.proof_of_delivery_url?`<a href="${s.proof_of_delivery_url}" target="_blank" rel="noopener"><img src="${s.proof_of_delivery_url}" style="width:100%;max-width:360px;border-radius:8px;display:block;margin-top:6px;" alt="Proof of delivery"/></a>`:'';
+    } else {
+      podWrap.style.display='none';
+    }
     const wrap=document.getElementById('stagesWrap');
     wrap.innerHTML='';
     stages.forEach((st,i)=>{

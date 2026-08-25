@@ -368,6 +368,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <h1 id="pageTitle">Dashboard</h1>
       <div class="topbar-right">
         <button class="refresh-btn" onclick="loadShipments()">↻ Refresh</button>
+        <button class="refresh-btn" onclick="openChangePasswordModal()">🔑 Change Password</button>
         <div class="topbar-user" id="topbarUser">Logged in as <strong>Admin</strong></div>
       </div>
     </div>
@@ -648,23 +649,6 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
             </div>
             <button class="submit-btn" onclick="updateApiUrl()">Update Connection</button>
           </div>
-          <div class="settings-card">
-            <h3>Change My Password</h3>
-            <p>Update the password for your own admin account (<span id="myUsernameLabel">-</span>).</p>
-            <div class="fg">
-              <label>Current Password</label>
-              <input type="password" id="curPw" placeholder="Current password"/>
-            </div>
-            <div class="fg">
-              <label>New Password</label>
-              <input type="password" id="newPw" placeholder="New password"/>
-            </div>
-            <div class="fg">
-              <label>Confirm New Password</label>
-              <input type="password" id="confirmPw" placeholder="Confirm new password"/>
-            </div>
-            <button class="submit-btn" onclick="changePassword()">Update Password</button>
-          </div>
           <div class="settings-card" style="grid-column:1/-1;">
             <h3>Tracking Stages Reference</h3>
             <p>Stages differ by freight type. Air freight: 3 to 7 working days. Sea freight & Groupage: 4 to 8 weeks. Domestic Inter-State: 1 to 5 working days. Domestic Intra-State: same day to 2 working days.</p>
@@ -776,6 +760,30 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
   </div><!-- /main-area -->
 </div><!-- /adminPanel -->
 
+<!-- CHANGE PASSWORD MODAL (available to every role) -->
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="max-width:420px;">
+    <h3>Change My Password</h3>
+    <div class="modal-sub">Update the password for your own account (<span id="myUsernameLabel">-</span>).</div>
+    <div class="fg">
+      <label>Current Password</label>
+      <input type="password" id="curPw" placeholder="Current password"/>
+    </div>
+    <div class="fg">
+      <label>New Password</label>
+      <input type="password" id="newPw" placeholder="New password"/>
+    </div>
+    <div class="fg">
+      <label>Confirm New Password</label>
+      <input type="password" id="confirmPw" placeholder="Confirm new password"/>
+    </div>
+    <div class="modal-actions" style="display:flex;gap:10px;margin-top:16px;">
+      <button class="submit-btn" style="flex:1;" onclick="changePassword()">Update Password</button>
+      <button class="cancel-btn" style="flex:1;" onclick="closeChangePasswordModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT STATUS MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
@@ -811,13 +819,17 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <div id="deliveredExtraFields" style="display:none;background:var(--gray);border-radius:8px;padding:14px;margin-top:14px;">
         <div style="font-size:12px;font-weight:700;color:var(--navy-dark);margin-bottom:10px;">📬 Delivered — extra details for the customer email</div>
         <div class="fg">
+          <label>Received By (name of person who took the parcel)</label>
+          <input type="text" id="modal-received-by" placeholder="e.g. John Doe"/>
+        </div>
+        <div class="fg">
           <label>Delivery Date &amp; Time</label>
           <input type="datetime-local" id="modal-delivered-datetime"/>
         </div>
         <div class="fg" style="margin-bottom:0;">
           <label>Proof of Delivery Photo (optional)</label>
           <input type="file" id="modal-delivered-photo" accept="image/*"/>
-          <div class="helper">Attached to the delivered email as the proof-of-delivery photo.</div>
+          <div class="helper">Saved to the shipment and shown to the customer on their tracking page.</div>
         </div>
       </div>
     </div>
@@ -836,6 +848,34 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
     <div id="viewModalContent"></div>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeViewModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT SHIPMENT DETAILS MODAL -->
+<div class="modal-overlay" id="editShipmentModal">
+  <div class="modal" style="max-width:640px;">
+    <h3>Edit Shipment Details</h3>
+    <div class="modal-sub">Correct any mistakes in this shipment's info (<span id="editShipmentTnum" style="font-family:monospace;font-weight:700;"></span>). This does not change tracking status.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="fg"><label>Full Name</label><input type="text" id="es-full_name"/></div>
+      <div class="fg"><label>Phone</label><input type="text" id="es-phone"/></div>
+      <div class="fg"><label>Email</label><input type="email" id="es-email"/></div>
+      <div class="fg"><label>Weight (kg)</label><input type="text" id="es-weight"/></div>
+      <div class="fg"><label>Origin</label><input type="text" id="es-origin"/></div>
+      <div class="fg"><label>Destination</label><input type="text" id="es-destination"/></div>
+    </div>
+    <div class="fg"><label>Delivery Address Line 1</label><input type="text" id="es-delivery_address_line1"/></div>
+    <div class="fg"><label>Delivery Address Line 2</label><input type="text" id="es-delivery_address_line2"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+      <div class="fg"><label>City</label><input type="text" id="es-delivery_city"/></div>
+      <div class="fg"><label>County / State</label><input type="text" id="es-delivery_county"/></div>
+      <div class="fg"><label>Postcode</label><input type="text" id="es-delivery_postcode"/></div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="es-notes" rows="2" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:14px;box-sizing:border-box;"></textarea></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeEditShipmentModal()">Cancel</button>
+      <button class="modal-save" onclick="saveEditShipment()">Save Changes</button>
     </div>
   </div>
 </div>
@@ -1049,6 +1089,10 @@ function logActivity(actionLabel,trackingNumber,details){
 
 // Checks with the server that this session hasn't been force-logged-out by an
 // admin. Runs on load and periodically while the dashboard is open.
+// Requires TWO consecutive "invalid" responses (not just one network hiccup or a
+// slow Apps Script cold-start) before actually logging the person out, since a
+// single failed check isn't reliable evidence the session was really ended.
+let __sessionInvalidStreak=0;
 async function validateSession(){
   if(!currentSession) return;
   try{
@@ -1059,11 +1103,17 @@ async function validateSession(){
     });
     const data=await res.json();
     if(!data || !data.valid){
-      showToast('Your session has ended. Please log in again.','error');
-      logout();
+      __sessionInvalidStreak++;
+      if(__sessionInvalidStreak>=2){
+        showToast('Your session has ended. Please log in again.','error');
+        logout();
+      }
+    } else {
+      __sessionInvalidStreak=0;
     }
   }catch(e){
     console.error('Session check failed:',e);
+    // A network error is not proof the session ended - don't count it against the streak
   }
 }
 
@@ -1149,9 +1199,14 @@ async function loadVerifyShipment(trackingNumberInput){
 
 function renderVerifyCard(s,contentBox){
   const fullAddress=[s.delivery_address_line1,s.delivery_address_line2,s.delivery_city,s.delivery_county,s.delivery_postcode].filter(Boolean).join(', ')||'No address on file';
-  const stageName=s.update_title||'In Progress';
   const stages=getStages(s);
-  const isAlreadyDelivered=parseInt(s.status)===stages.length-1;
+  // Derive the label from the actual stage number rather than trusting a
+  // possibly-stale update_title field - this is what was showing "In Progress"
+  // even on delivered shipments.
+  const statusIdx=parseInt(s.status);
+  const stageFromIndex=stages[statusIdx]?stages[statusIdx].label:null;
+  const stageName=s.update_title||stageFromIndex||'Status Unknown';
+  const isAlreadyDelivered=statusIdx===stages.length-1;
 
   contentBox.innerHTML=`
     <div style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:10px;padding:12px;margin-bottom:20px;text-align:center;">
@@ -1194,16 +1249,29 @@ function renderVerifyCard(s,contentBox){
       </div>
     </div>
     ${isAlreadyDelivered?`
-    <div style="margin-top:20px;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:8px;padding:14px;text-align:center;">
-      <div style="font-size:13px;font-weight:700;color:#16a34a;">✓ This shipment is already marked Delivered</div>
+    <div style="margin-top:20px;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:8px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#16a34a;text-align:center;margin-bottom:10px;">✓ This shipment is marked Delivered</div>
+      ${s.received_by?`<div style="font-size:12px;color:#166534;margin-bottom:4px;"><strong>Received by:</strong> ${s.received_by}</div>`:''}
+      ${s.delivered_by?`<div style="font-size:12px;color:#166534;margin-bottom:4px;"><strong>Delivered by:</strong> ${s.delivered_by}</div>`:''}
+      ${s.update_time?`<div style="font-size:12px;color:#166534;margin-bottom:${s.proof_of_delivery_url?'10px':'0'};"><strong>Time:</strong> ${s.update_time}</div>`:''}
+      ${s.proof_of_delivery_url?`<a href="${s.proof_of_delivery_url}" target="_blank" rel="noopener"><img src="${s.proof_of_delivery_url}" style="width:100%;border-radius:8px;display:block;" alt="Proof of delivery"/></a>`:''}
     </div>` : (currentSession?`
     <div style="margin-top:20px;border-top:1px solid #eee;padding-top:20px;">
       <h4 style="font-size:13px;font-weight:800;color:#0D1B3E;margin-bottom:12px;">📬 Confirm Delivery</h4>
+      <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Received By (name of person who took the parcel) *</label>
+      <input type="text" id="verifyReceivedBy" placeholder="e.g. John Doe" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;"/>
       <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Delivery Date & Time</label>
       <input type="datetime-local" id="verifyDeliveredDatetime" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;"/>
       <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Proof of Delivery Photo (optional)</label>
       <input type="file" id="verifyDeliveredPhoto" accept="image/*" style="width:100%;margin-bottom:14px;"/>
-      <button id="verifyDeliverBtn" onclick='confirmDeliveryFromVerify(${JSON.stringify(s.tracking_number)})' style="width:100%;background:#16a34a;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Mark as Delivered</button>
+      <button id="verifyDeliverBtn" onclick='confirmDeliveryFromVerify(${JSON.stringify(s.tracking_number)})' style="width:100%;background:#16a34a;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;">Mark as Delivered</button>
+
+      <h4 style="font-size:13px;font-weight:800;color:#0D1B3E;margin-bottom:10px;border-top:1px solid #eee;padding-top:16px;">⚠️ Unsuccessful Delivery Attempt?</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${['attempted','rescheduled','returned','addressIssue','customerUnavailable','exception','awaitingAction'].map(key=>
+          `<button onclick='reportVerifyException(${JSON.stringify(s.tracking_number)},"${key}")' style="width:100%;background:#fff;border:1.5px solid #ddd;color:#0D1B3E;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-align:left;">${OPTIONAL_UPDATES[key].label}</button>`
+        ).join('')}
+      </div>
     </div>`:'')}
   `;
   const dtInput=document.getElementById('verifyDeliveredDatetime');
@@ -1214,9 +1282,76 @@ function renderVerifyCard(s,contentBox){
   }
 }
 
+// Lets a driver (or anyone logged in) log an unsuccessful attempt / exception
+// without advancing the shipment's stage - just annotates the current stage,
+// same as the templates admins use in the main dashboard.
+async function reportVerifyException(trackingNumber,key){
+  const update=OPTIONAL_UPDATES[key];
+  if(!update)return;
+  const contentBox=document.getElementById('standaloneVerifyContent');
+  try{
+    const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
+    const data=await res.json();
+    const list=Array.isArray(data)?data:[];
+    const s=list.find(x=>x.tracking_number&&x.tracking_number.trim().toUpperCase()===trackingNumber.trim().toUpperCase());
+    if(!s){showToast('Shipment not found','error');return;}
+
+    const newTime=formatUkTimestamp();
+    const payload={
+      action:'updateStatus',
+      tracking_number:s.tracking_number,
+      status:s.status,
+      route_code:getRouteCode(s),
+      update_title:update.label,
+      update_location:update.location,
+      update_activity:update.desc,
+      update_time:newTime
+    };
+    if(currentSession){
+      payload.updated_by=currentSession.full_name;
+      payload.username=currentSession.username;
+      payload.session_token=currentSession.token;
+    }
+    const updateRes=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(payload)
+    });
+    if(updateRes.ok){
+      showToast(`Logged: ${update.label}`,'success');
+      logActivity('Delivery Exception (scan)',s.tracking_number,update.label);
+      const updatedShipment=Object.assign({},s,{update_title:update.label,update_location:update.location,update_activity:update.desc});
+      renderVerifyCard(updatedShipment,contentBox);
+    } else {
+      showToast('Could not save. Check your connection and try again.','error');
+    }
+  } catch(e){
+    console.error('reportVerifyException failed:',e);
+    showToast('Something went wrong. Check your connection and try again.','error');
+  }
+}
+
+// Converts a selected file input into a base64 data URL so it can be sent to
+// Apps Script and saved to Drive (instead of relying on EmailJS's paid-tier
+// attachment feature, which was the old approach).
+function fileToBase64(fileInput){
+  return new Promise((resolve,reject)=>{
+    if(!fileInput || !fileInput.files || !fileInput.files[0]){resolve(null);return;}
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(fileInput.files[0]);
+  });
+}
+
 async function confirmDeliveryFromVerify(trackingNumber){
   const btn=document.getElementById('verifyDeliverBtn');
   const contentBox=document.getElementById('standaloneVerifyContent');
+  const receivedBy=document.getElementById('verifyReceivedBy').value.trim();
+  if(!receivedBy){
+    showToast('Please enter the name of the person who received the parcel','error');
+    return;
+  }
   try{
     btn.disabled=true;btn.textContent='Marking as delivered...';
     const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
@@ -1241,6 +1376,9 @@ async function confirmDeliveryFromVerify(trackingNumber){
     history.push({status:String(finalIndex),title:finalStage.label,location:finalStage.location,activity:finalStage.desc,time:newTime});
     history.sort((a,b)=>parseInt(a.status)-parseInt(b.status));
 
+    const photoInput=document.getElementById('verifyDeliveredPhoto');
+    const photoBase64=await fileToBase64(photoInput);
+
     const payload={
       action:'updateStatus',
       tracking_number:s.tracking_number,
@@ -1250,8 +1388,11 @@ async function confirmDeliveryFromVerify(trackingNumber){
       update_location:finalStage.location,
       update_activity:finalStage.desc,
       update_time:newTime,
-      tracking_history:JSON.stringify(history)
+      tracking_history:JSON.stringify(history),
+      received_by:receivedBy,
+      delivered_by:currentSession?currentSession.full_name:''
     };
+    if(photoBase64) payload.photo_base64=photoBase64;
     if(currentSession){
       payload.updated_by=currentSession.full_name;
       payload.username=currentSession.username;
@@ -1263,21 +1404,25 @@ async function confirmDeliveryFromVerify(trackingNumber){
       headers:{'Content-Type':'text/plain'},
       body:JSON.stringify(payload)
     });
+    const updateData=await updateRes.json();
 
-    if(updateRes.ok){
+    if(updateRes.ok && updateData && updateData.success){
       showToast('Shipment marked as Delivered','success');
-      logActivity('Confirmed Delivery (scan)',s.tracking_number,'Marked delivered via QR/verify portal');
+      logActivity('Confirmed Delivery (scan)',s.tracking_number,`Received by ${receivedBy}`);
 
       const dtVal=document.getElementById('verifyDeliveredDatetime').value;
       const deliveredDate=dtVal?formatEmailTimestamp(new Date(dtVal)):formatEmailTimestamp();
-      const photoInput=document.getElementById('verifyDeliveredPhoto');
       const updatedShipment=Object.assign({},s,{
         status:String(finalIndex),
         update_title:finalStage.label,
         update_location:finalStage.location,
-        update_activity:finalStage.desc
+        update_activity:finalStage.desc,
+        update_time:newTime,
+        received_by:receivedBy,
+        delivered_by:currentSession?currentSession.full_name:'',
+        proof_of_delivery_url:updateData.proof_of_delivery_url||''
       });
-      await sendDeliveredEmail(updatedShipment,{deliveredDate,photoInput});
+      await sendDeliveredEmail(updatedShipment,{deliveredDate});
 
       renderVerifyCard(updatedShipment,contentBox);
     } else {
@@ -1346,32 +1491,6 @@ function getArrivalTemplateId(shipment){
 // uses emailjs.sendForm so the file goes out as a real attachment (this needs
 // the target template's "Attachments" option enabled in the EmailJS dashboard,
 // bound to a variable with the same name as the file input's `name` attribute).
-async function sendEmailJs(templateId,params,fileInput){
-  const hasFile=fileInput && fileInput.files && fileInput.files[0];
-  if(!hasFile){
-    return emailjs.send(EMAILJS_SERVICE_ID,templateId,params);
-  }
-  const originalParent=fileInput.parentNode;
-  const originalNext=fileInput.nextSibling;
-  const form=document.createElement('form');
-  form.style.display='none';
-  Object.keys(params).forEach(key=>{
-    const input=document.createElement('input');
-    input.type='hidden';
-    input.name=key;
-    input.value=params[key]==null?'':params[key];
-    form.appendChild(input);
-  });
-  form.appendChild(fileInput); // moving the live element (not a clone) keeps its selected file
-  document.body.appendChild(form);
-  try{
-    return await emailjs.sendForm(EMAILJS_SERVICE_ID,templateId,form);
-  } finally {
-    originalParent.insertBefore(fileInput,originalNext);
-    document.body.removeChild(form);
-  }
-}
-
 async function sendTrackingEmail(shipment){
   if(!shipment.email || shipment.email.trim()===''){
     console.log('No email on this shipment, skipping email send.');
@@ -1428,7 +1547,7 @@ async function sendDeliveredEmail(shipment,options){
     return;
   }
   try{
-    await sendEmailJs(EMAILJS_DELIVERED_TEMPLATE_ID, {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_DELIVERED_TEMPLATE_ID, {
       email: shipment.email,
       to_name: shipment.full_name || 'Customer',
       tracking_number: shipment.tracking_number,
@@ -1438,8 +1557,11 @@ async function sendDeliveredEmail(shipment,options){
       update_location: shipment.update_location || '',
       update_activity: shipment.update_activity || '',
       delivered_date: options.deliveredDate || formatEmailTimestamp(),
+      received_by: shipment.received_by || '',
+      delivered_by: shipment.delivered_by || '',
+      proof_of_delivery_url: shipment.proof_of_delivery_url || '',
       logo_url: COMPANY_LOGO_URL
-    },options.photoInput);
+    });
     showToast(`Delivered email sent to ${shipment.email}`,'success');
   } catch(err){
     console.error('Delivered EmailJS send failed:',err);
@@ -1768,7 +1890,7 @@ function logout(){
 // Re-checks with the server every 2 minutes so a force-logout by an admin
 // takes effect for the other user within a couple of minutes, not just on
 // their next write action.
-setInterval(()=>{ if(currentSession) validateSession(); },120000);
+setInterval(()=>{ if(currentSession) validateSession(); },300000); // every 5 minutes
 
 // ===== ADMIN =====
 function showAdmin(){
@@ -1791,6 +1913,7 @@ function showAdmin(){
     const myLabel=document.getElementById('myUsernameLabel');
     if(myLabel) myLabel.textContent=currentSession.username;
     document.getElementById('nav-users').style.display=isAdminRole()?'flex':'none';
+    document.getElementById('nav-settings').style.display=isAdminRole()?'flex':'none';
     const manageCard=document.getElementById('manageUsersCard');
     if(manageCard) manageCard.style.display=isAdminRole()?'block':'none';
     const addUserCard=document.getElementById('addUserCard');
@@ -2209,6 +2332,8 @@ function closeModal(){
   selectedStatus=null;
   document.getElementById('deliveredExtraFields').style.display='none';
   document.getElementById('modal-delivered-datetime').value='';
+  const receivedByInput=document.getElementById('modal-received-by');
+  if(receivedByInput) receivedByInput.value='';
   const photoInput=document.getElementById('modal-delivered-photo');
   if(photoInput) photoInput.value='';
 }
@@ -2281,10 +2406,19 @@ function viewShipmentDetails(trackingNum){
 
     ${s.notes&&s.notes.trim()?`<div style="margin-top:12px;">${field('Notes',s.notes)}</div>`:''}
 
+    ${(s.received_by||s.delivered_by||s.proof_of_delivery_url)?`
+    <div style="margin-top:12px;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:8px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:8px;">📬 Delivery Confirmation</div>
+      ${s.received_by?`<div style="font-size:13px;color:#166534;margin-bottom:4px;"><strong>Received by:</strong> ${s.received_by}</div>`:''}
+      ${s.delivered_by?`<div style="font-size:13px;color:#166534;margin-bottom:4px;"><strong>Delivered by:</strong> ${s.delivered_by}</div>`:''}
+      ${s.proof_of_delivery_url?`<a href="${s.proof_of_delivery_url}" target="_blank" rel="noopener"><img src="${s.proof_of_delivery_url}" style="max-width:280px;width:100%;border-radius:8px;display:block;margin-top:8px;" alt="Proof of delivery"/></a>`:''}
+    </div>` : ''}
+
     ${historyHtml}
 
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
       <button class="action-btn edit" onclick="closeViewModal();openEditModal('${s.tracking_number}')">Update Status</button>
+      <button class="action-btn" style="background:rgba(27,45,107,0.08);color:var(--navy-dark);" onclick="closeViewModal();openEditShipmentModal('${s.tracking_number}')">✏️ Edit Details</button>
       <button class="action-btn" style="background:rgba(27,45,107,0.08);color:var(--navy-dark);" onclick="printShipmentLabel('${s.tracking_number}')">🏷️ Print Label</button>
       ${s.email?`<button class="action-btn" style="background:rgba(244,121,32,0.1);color:var(--orange);" onclick="resendEmail('${s.tracking_number}')">📧 Resend Email</button>`:''}
     </div>
@@ -2295,6 +2429,48 @@ function viewShipmentDetails(trackingNum){
 
 function closeViewModal(){
   document.getElementById('viewModal').classList.remove('open');
+}
+
+// ===== EDIT SHIPMENT DETAILS (core info, not tracking status) =====
+const EDIT_SHIPMENT_FIELDS=['full_name','phone','email','weight','origin','destination','delivery_address_line1','delivery_address_line2','delivery_city','delivery_county','delivery_postcode','notes'];
+
+function openEditShipmentModal(trackingNum){
+  const s=allShipments.find(x=>x.tracking_number===trackingNum);
+  if(!s){showToast('Shipment not found','error');return;}
+  document.getElementById('editShipmentTnum').textContent=trackingNum;
+  EDIT_SHIPMENT_FIELDS.forEach(field=>{
+    const el=document.getElementById('es-'+field);
+    if(el) el.value=s[field]||'';
+  });
+  document.getElementById('editShipmentModal').dataset.tracking=trackingNum;
+  document.getElementById('editShipmentModal').classList.add('open');
+}
+
+function closeEditShipmentModal(){
+  document.getElementById('editShipmentModal').classList.remove('open');
+}
+
+async function saveEditShipment(){
+  const trackingNum=document.getElementById('editShipmentModal').dataset.tracking;
+  if(!trackingNum)return;
+  const payload={tracking_number:trackingNum};
+  EDIT_SHIPMENT_FIELDS.forEach(field=>{
+    const el=document.getElementById('es-'+field);
+    if(el) payload[field]=el.value.trim();
+  });
+  try{
+    const data=await postToScript('editShipment',payload);
+    if(data && data.success){
+      showToast('Shipment details updated','success');
+      logActivity('Edited Shipment Details',trackingNum,'Updated customer/shipment info');
+      closeEditShipmentModal();
+      await loadShipments();
+    } else {
+      showToast((data&&data.error)||'Could not save changes','error');
+    }
+  } catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
 }
 
 async function saveStatus(){
@@ -2338,14 +2514,34 @@ async function saveStatus(){
     update_time:newTime,
     tracking_history:JSON.stringify(history)
   };
+
+  // If this save is landing on the final ("Delivered") stage, capture who
+  // received it and the photo, same as the driver scan-and-deliver flow.
+  const stages=getStages(s||'');
+  const isDeliveredStage=parseInt(selectedStatus)===stages.length-1;
+  let photoBase64=null;
+  if(isDeliveredStage){
+    const receivedByEl=document.getElementById('modal-received-by');
+    if(receivedByEl && receivedByEl.value.trim()) payload.received_by=receivedByEl.value.trim();
+    payload.delivered_by=currentSession?currentSession.full_name:'';
+    const photoInput=document.getElementById('modal-delivered-photo');
+    photoBase64=await fileToBase64(photoInput);
+    if(photoBase64) payload.photo_base64=photoBase64;
+  }
+  if(currentSession){
+    payload.updated_by=currentSession.full_name;
+    payload.username=currentSession.username;
+    payload.session_token=currentSession.token;
+  }
+
   try{
     const res=await fetch(CONFIG.scriptUrl,{
       method:'POST',redirect:'follow',
       headers:{'Content-Type':'text/plain'},
       body:JSON.stringify(payload)
     });
+    const resData=await res.json();
     if(res.ok){
-      const stages=getStages(s||'');
       const stageName=stages[selectedStatus]?stages[selectedStatus].label:'Updated';
       showToast(`Status updated: ${payload.update_title||stageName}`,'success');
       logActivity('Updated Status',editingTracking,payload.update_title||stageName);
@@ -2360,14 +2556,16 @@ async function saveStatus(){
             status:String(selectedStatus),
             update_title:newTitle,
             update_location:newLocation,
-            update_activity:newActivity
+            update_activity:newActivity,
+            received_by:payload.received_by||'',
+            delivered_by:payload.delivered_by||'',
+            proof_of_delivery_url:(resData&&resData.proof_of_delivery_url)||''
           });
           if(milestone==='arrival') sendArrivalEmail(updatedShipment);
           else if(milestone==='delivered'){
             const dtVal=document.getElementById('modal-delivered-datetime').value;
             const deliveredDate=dtVal?formatEmailTimestamp(new Date(dtVal)):formatEmailTimestamp();
-            const photoInput=document.getElementById('modal-delivered-photo');
-            sendDeliveredEmail(updatedShipment,{deliveredDate,photoInput});
+            sendDeliveredEmail(updatedShipment,{deliveredDate});
           }
         }
       }
@@ -2733,6 +2931,16 @@ function updateApiUrl(){
   showToast('Connection is managed via Google Apps Script. Edit the script directly to change the connected sheet.','error');
 }
 
+function openChangePasswordModal(){
+  const label=document.getElementById('myUsernameLabel');
+  if(label && currentSession) label.textContent=currentSession.username;
+  ['curPw','newPw','confirmPw'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('changePasswordModal').classList.add('open');
+}
+function closeChangePasswordModal(){
+  document.getElementById('changePasswordModal').classList.remove('open');
+}
+
 async function changePassword(){
   const cur=document.getElementById('curPw').value;
   const nw=document.getElementById('newPw').value;
@@ -2747,6 +2955,7 @@ async function changePassword(){
     if(data && data.success){
       showToast('Password updated successfully','success');
       ['curPw','newPw','confirmPw'].forEach(id=>document.getElementById(id).value='');
+      closeChangePasswordModal();
     } else {
       showToast((data&&data.error)||'Could not update password. Check your current password.','error');
     }
