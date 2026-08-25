@@ -269,6 +269,13 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <button onclick="logout()" style="width:100%;background:none;border:none;color:#666;font-size:12px;padding:10px;cursor:pointer;text-decoration:underline;">Log out</button>
     </div>
 
+    <div id="driverQueueTabs" style="display:none;gap:8px;margin-bottom:12px;">
+      <button type="button" onclick="showDriverTab('pending')" id="driverTabPending" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #F47920;background:#F47920;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">📦 My Deliveries</button>
+      <button type="button" onclick="showDriverTab('history')" id="driverTabHistory" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #ddd;background:#fff;color:#0D1B3E;font-size:13px;font-weight:700;cursor:pointer;">✓ History</button>
+    </div>
+    <div id="driverPendingList" style="display:none;"></div>
+    <div id="driverHistoryList" style="display:none;"></div>
+
     <div id="standaloneVerifyContent" style="display:none;background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.06);"></div>
   </div>
 </div>
@@ -1163,6 +1170,74 @@ async function doStandaloneVerifyLogin(){
   } else {
     // A Driver (or anyone) opened this portal directly - let them look one up
     document.getElementById('standaloneVerifySearch').style.display='block';
+    loadDriverDashboard();
+  }
+}
+
+// ===== DRIVER DASHBOARD: assigned queue + delivery history =====
+let __driverShipmentsCache=[];
+
+async function loadDriverDashboard(){
+  if(!currentSession)return;
+  try{
+    const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
+    const data=await res.json();
+    __driverShipmentsCache=Array.isArray(data)?data:[];
+    document.getElementById('driverQueueTabs').style.display='flex';
+    showDriverTab('pending');
+  }catch(e){
+    console.error('loadDriverDashboard failed:',e);
+  }
+}
+
+function backToDriverDashboard(){
+  document.getElementById('standaloneVerifyContent').style.display='none';
+  document.getElementById('standaloneVerifyContent').innerHTML='';
+  loadDriverDashboard();
+}
+
+function showDriverTab(tab){
+  const pendingBtn=document.getElementById('driverTabPending');
+  const historyBtn=document.getElementById('driverTabHistory');
+  const activeStyle='flex:1;padding:10px;border-radius:8px;border:1.5px solid #F47920;background:#F47920;color:#fff;font-size:13px;font-weight:700;cursor:pointer;';
+  const inactiveStyle='flex:1;padding:10px;border-radius:8px;border:1.5px solid #ddd;background:#fff;color:#0D1B3E;font-size:13px;font-weight:700;cursor:pointer;';
+  pendingBtn.style.cssText=tab==='pending'?activeStyle:inactiveStyle;
+  historyBtn.style.cssText=tab==='history'?activeStyle:inactiveStyle;
+
+  const username=(currentSession.username||'').toLowerCase();
+  const fullName=(currentSession.full_name||'').toLowerCase();
+
+  if(tab==='pending'){
+    const pending=__driverShipmentsCache.filter(s=>{
+      if(!s.assigned_driver || s.assigned_driver.toLowerCase()!==username) return false;
+      const stages=getStages(s);
+      return parseInt(s.status)!==stages.length-1;
+    });
+    document.getElementById('driverPendingList').innerHTML=pending.length?pending.map(s=>`
+      <div onclick="loadVerifyShipment('${s.tracking_number}')" style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;">
+        <div style="font-family:monospace;font-weight:800;color:#0D1B3E;font-size:14px;">${s.tracking_number}</div>
+        <div style="font-size:13px;color:#333;margin-top:4px;">${s.full_name||'-'} · ${s.phone||'-'}</div>
+        <div style="font-size:12px;color:#F47920;font-weight:700;margin-top:4px;">${s.update_title||getStageName(s,s.status)}</div>
+      </div>
+    `).join(''):`<div style="text-align:center;color:#666;font-size:13px;padding:30px 0;background:#fff;border-radius:10px;">No deliveries assigned to you right now.</div>`;
+    document.getElementById('driverPendingList').style.display='block';
+    document.getElementById('driverHistoryList').style.display='none';
+  } else {
+    const history=__driverShipmentsCache.filter(s=>
+      s.delivered_by && s.delivered_by.toLowerCase()===fullName
+    );
+    document.getElementById('driverHistoryList').innerHTML=history.length?history.map(s=>`
+      <div onclick="loadVerifyShipment('${s.tracking_number}')" style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;display:flex;gap:12px;align-items:center;">
+        ${s.proof_of_delivery_url?`<img src="${s.proof_of_delivery_url}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;"/>`:''}
+        <div>
+          <div style="font-family:monospace;font-weight:800;color:#0D1B3E;font-size:14px;">${s.tracking_number}</div>
+          <div style="font-size:13px;color:#333;margin-top:4px;">Received by ${s.received_by||'-'}</div>
+          <div style="font-size:12px;color:#16a34a;font-weight:700;margin-top:4px;">${s.update_time||''}</div>
+        </div>
+      </div>
+    `).join(''):`<div style="text-align:center;color:#666;font-size:13px;padding:30px 0;background:#fff;border-radius:10px;">No completed deliveries yet.</div>`;
+    document.getElementById('driverHistoryList').style.display='block';
+    document.getElementById('driverPendingList').style.display='none';
   }
 }
 
@@ -1173,6 +1248,10 @@ async function loadVerifyShipment(trackingNumberInput){
     showToast('Enter a tracking number first','error');
     return;
   }
+  // Hide the queue/history lists while viewing one specific shipment
+  document.getElementById('driverQueueTabs').style.display='none';
+  document.getElementById('driverPendingList').style.display='none';
+  document.getElementById('driverHistoryList').style.display='none';
   contentBox.style.display='block';
   contentBox.innerHTML='<p style="text-align:center;color:#666;font-size:13px;padding:20px 0;">Loading shipment details...</p>';
 
@@ -1209,6 +1288,7 @@ function renderVerifyCard(s,contentBox){
   const isAlreadyDelivered=statusIdx===stages.length-1;
 
   contentBox.innerHTML=`
+    ${currentSession?`<button onclick="backToDriverDashboard()" style="background:none;border:none;color:#F47920;font-size:13px;font-weight:700;cursor:pointer;padding:0;margin-bottom:16px;">← Back to My Deliveries</button>`:''}
     <div style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:10px;padding:12px;margin-bottom:20px;text-align:center;">
       <div style="font-size:13px;font-weight:700;color:#16a34a;">✓ Verified QuickFetch Shipment</div>
     </div>
@@ -1253,7 +1333,8 @@ function renderVerifyCard(s,contentBox){
       <div style="font-size:13px;font-weight:700;color:#16a34a;text-align:center;margin-bottom:10px;">✓ This shipment is marked Delivered</div>
       ${s.received_by?`<div style="font-size:12px;color:#166534;margin-bottom:4px;"><strong>Received by:</strong> ${s.received_by}</div>`:''}
       ${s.delivered_by?`<div style="font-size:12px;color:#166534;margin-bottom:4px;"><strong>Delivered by:</strong> ${s.delivered_by}</div>`:''}
-      ${s.update_time?`<div style="font-size:12px;color:#166534;margin-bottom:${s.proof_of_delivery_url?'10px':'0'};"><strong>Time:</strong> ${s.update_time}</div>`:''}
+      ${s.update_time?`<div style="font-size:12px;color:#166534;margin-bottom:4px;"><strong>Time:</strong> ${s.update_time}</div>`:''}
+      ${s.driver_notes?`<div style="font-size:12px;color:#166534;margin-bottom:${s.proof_of_delivery_url?'10px':'0'};"><strong>Notes:</strong> ${s.driver_notes}</div>`:''}
       ${s.proof_of_delivery_url?`<a href="${s.proof_of_delivery_url}" target="_blank" rel="noopener"><img src="${s.proof_of_delivery_url}" style="width:100%;border-radius:8px;display:block;" alt="Proof of delivery"/></a>`:''}
     </div>` : (currentSession?`
     <div style="margin-top:20px;border-top:1px solid #eee;padding-top:20px;">
@@ -1263,7 +1344,9 @@ function renderVerifyCard(s,contentBox){
       <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Delivery Date & Time</label>
       <input type="datetime-local" id="verifyDeliveredDatetime" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;"/>
       <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Proof of Delivery Photo (optional)</label>
-      <input type="file" id="verifyDeliveredPhoto" accept="image/*" style="width:100%;margin-bottom:14px;"/>
+      <input type="file" id="verifyDeliveredPhoto" accept="image/*" style="width:100%;margin-bottom:12px;"/>
+      <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Additional Notes (optional)</label>
+      <textarea id="verifyDriverNotes" placeholder="Anything worth noting about this delivery..." rows="3" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:14px;box-sizing:border-box;font-family:inherit;"></textarea>
       <button id="verifyDeliverBtn" onclick='confirmDeliveryFromVerify(${JSON.stringify(s.tracking_number)})' style="width:100%;background:#16a34a;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;">Mark as Delivered</button>
 
       <h4 style="font-size:13px;font-weight:800;color:#0D1B3E;margin-bottom:10px;border-top:1px solid #eee;padding-top:16px;">⚠️ Unsuccessful Delivery Attempt?</h4>
@@ -1378,6 +1461,7 @@ async function confirmDeliveryFromVerify(trackingNumber){
 
     const photoInput=document.getElementById('verifyDeliveredPhoto');
     const photoBase64=await fileToBase64(photoInput);
+    const driverNotes=document.getElementById('verifyDriverNotes').value.trim();
 
     const payload={
       action:'updateStatus',
@@ -1390,7 +1474,8 @@ async function confirmDeliveryFromVerify(trackingNumber){
       update_time:newTime,
       tracking_history:JSON.stringify(history),
       received_by:receivedBy,
-      delivered_by:currentSession?currentSession.full_name:''
+      delivered_by:currentSession?currentSession.full_name:'',
+      driver_notes:driverNotes
     };
     if(photoBase64) payload.photo_base64=photoBase64;
     if(currentSession){
@@ -1420,6 +1505,7 @@ async function confirmDeliveryFromVerify(trackingNumber){
         update_time:newTime,
         received_by:receivedBy,
         delivered_by:currentSession?currentSession.full_name:'',
+        driver_notes:driverNotes,
         proof_of_delivery_url:updateData.proof_of_delivery_url||''
       });
       await sendDeliveredEmail(updatedShipment,{deliveredDate});
@@ -1882,6 +1968,9 @@ function logout(){
   document.getElementById('standaloneVerifyLogin').style.display='block';
   document.getElementById('standaloneVerifySearch').style.display='none';
   document.getElementById('standaloneVerifyContent').style.display='none';
+  document.getElementById('driverQueueTabs').style.display='none';
+  document.getElementById('driverPendingList').style.display='none';
+  document.getElementById('driverHistoryList').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('userInput').value='';
   document.getElementById('pwInput').value='';
@@ -1903,6 +1992,7 @@ function showAdmin(){
     document.getElementById('standaloneVerify').style.display='block';
     document.getElementById('standaloneVerifyLogin').style.display='none';
     document.getElementById('standaloneVerifySearch').style.display='block';
+    loadDriverDashboard();
     return;
   }
 
@@ -2406,6 +2496,19 @@ function viewShipmentDetails(trackingNum){
 
     ${s.notes&&s.notes.trim()?`<div style="margin-top:12px;">${field('Notes',s.notes)}</div>`:''}
 
+    <div style="margin-top:12px;background:var(--gray);border-radius:8px;padding:14px;">
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);margin-bottom:8px;">🚚 Assigned Driver</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select id="assignDriverSelect" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--border);border-radius:6px;font-size:13px;">
+          <option value="">Loading drivers...</option>
+        </select>
+        <button class="action-btn edit" onclick="assignDriverToShipment('${s.tracking_number}')">Assign</button>
+      </div>
+      <div style="font-size:12px;color:var(--text);margin-top:6px;">Currently: <strong>${s.assigned_driver?s.assigned_driver:'Unassigned'}</strong></div>
+    </div>
+
+    ${s.driver_notes&&s.driver_notes.trim()?`<div style="margin-top:12px;">${field("Driver's Notes",s.driver_notes)}</div>`:''}
+
     ${(s.received_by||s.delivered_by||s.proof_of_delivery_url)?`
     <div style="margin-top:12px;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:8px;padding:14px;">
       <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:8px;">📬 Delivery Confirmation</div>
@@ -2425,6 +2528,50 @@ function viewShipmentDetails(trackingNum){
   `;
 
   document.getElementById('viewModal').classList.add('open');
+  populateDriverSelect(s.assigned_driver);
+}
+
+// Loads the list of active Driver-role accounts into the assignment dropdown,
+// pre-selecting whichever driver (if any) this shipment is already assigned to.
+async function populateDriverSelect(currentlyAssigned){
+  const sel=document.getElementById('assignDriverSelect');
+  if(!sel)return;
+  try{
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'getDriverList'})
+    });
+    const data=await res.json();
+    const drivers=Array.isArray(data.drivers)?data.drivers:[];
+    if(drivers.length===0){
+      sel.innerHTML=`<option value="">No driver accounts yet</option>`;
+      return;
+    }
+    sel.innerHTML=`<option value="">Unassign</option>`+drivers.map(d=>
+      `<option value="${d.username}"${d.username===currentlyAssigned?' selected':''}>${d.full_name} (${d.username})</option>`
+    ).join('');
+  }catch(e){
+    sel.innerHTML=`<option value="">Could not load drivers</option>`;
+  }
+}
+
+async function assignDriverToShipment(trackingNumber){
+  const sel=document.getElementById('assignDriverSelect');
+  const driverUsername=sel?sel.value:'';
+  try{
+    const data=await postToScript('editShipment',{tracking_number:trackingNumber,assigned_driver:driverUsername});
+    if(data && data.success){
+      showToast(driverUsername?`Assigned to ${sel.options[sel.selectedIndex].text}`:'Unassigned','success');
+      logActivity('Assigned Driver',trackingNumber,driverUsername||'Unassigned');
+      await loadShipments();
+      viewShipmentDetails(trackingNumber);
+    } else {
+      showToast((data&&data.error)||'Could not assign driver','error');
+    }
+  }catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
 }
 
 function closeViewModal(){
