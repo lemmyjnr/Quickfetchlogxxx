@@ -1213,13 +1213,18 @@ function showDriverTab(tab){
       const stages=getStages(s);
       return parseInt(s.status)!==stages.length-1;
     });
-    document.getElementById('driverPendingList').innerHTML=pending.length?pending.map(s=>`
+    document.getElementById('driverPendingList').innerHTML=pending.length?pending.map(s=>{
+      const stages=getStages(s);
+      const ofdIndex=stages.findIndex(st=>st.label==='Out for Delivery');
+      const needsAccept=ofdIndex!==-1 && parseInt(s.status)<ofdIndex;
+      return `
       <div onclick="loadVerifyShipment('${s.tracking_number}')" style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;">
         <div style="font-family:monospace;font-weight:800;color:#0D1B3E;font-size:14px;">${s.tracking_number}</div>
         <div style="font-size:13px;color:#333;margin-top:4px;">${s.full_name||'-'} · ${s.phone||'-'}</div>
         <div style="font-size:12px;color:#F47920;font-weight:700;margin-top:4px;">${s.update_title||getStageName(s,s.status)}</div>
+        ${needsAccept?`<button onclick="acceptDelivery('${s.tracking_number}',event)" style="width:100%;margin-top:10px;background:#0D1B3E;color:#fff;border:none;padding:9px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;">✓ Accept Delivery (marks Out for Delivery)</button>`:''}
       </div>
-    `).join(''):`<div style="text-align:center;color:#666;font-size:13px;padding:30px 0;background:#fff;border-radius:10px;">No deliveries assigned to you right now.</div>`;
+    `;}).join(''):`<div style="text-align:center;color:#666;font-size:13px;padding:30px 0;background:#fff;border-radius:10px;">No deliveries assigned to you right now.</div>`;
     document.getElementById('driverPendingList').style.display='block';
     document.getElementById('driverHistoryList').style.display='none';
   } else {
@@ -1238,6 +1243,68 @@ function showDriverTab(tab){
     `).join(''):`<div style="text-align:center;color:#666;font-size:13px;padding:30px 0;background:#fff;border-radius:10px;">No completed deliveries yet.</div>`;
     document.getElementById('driverHistoryList').style.display='block';
     document.getElementById('driverPendingList').style.display='none';
+  }
+}
+
+// Driver accepts an assigned delivery - this is the explicit action that
+// moves the shipment to "Out for Delivery", rather than that happening
+// automatically just from being assigned.
+async function acceptDelivery(trackingNumber,event){
+  if(event) event.stopPropagation();
+  try{
+    const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
+    const data=await res.json();
+    const list=Array.isArray(data)?data:[];
+    const s=list.find(x=>x.tracking_number&&x.tracking_number.trim().toUpperCase()===trackingNumber.trim().toUpperCase());
+    if(!s){showToast('Shipment not found','error');return;}
+    const stages=getStages(s);
+    const ofdIndex=stages.findIndex(st=>st.label==='Out for Delivery');
+    if(ofdIndex===-1){showToast('This route has no "Out for Delivery" stage','error');return;}
+    if(parseInt(s.status)>=ofdIndex){showToast('Already past that stage','error');return;}
+    const stage=stages[ofdIndex];
+    const newTime=formatUkTimestamp();
+
+    let history=[];
+    try{
+      if(s.tracking_history){
+        const parsed=JSON.parse(s.tracking_history);
+        if(Array.isArray(parsed)) history=parsed;
+      }
+    }catch(e){history=[];}
+    history=history.filter(item=>String(item.status)!==String(ofdIndex));
+    history.push({status:String(ofdIndex),title:stage.label,location:stage.location,activity:stage.desc,time:newTime});
+    history.sort((a,b)=>parseInt(a.status)-parseInt(b.status));
+
+    const payload={
+      action:'updateStatus',
+      tracking_number:s.tracking_number,
+      status:String(ofdIndex),
+      route_code:getRouteCode(s),
+      update_title:stage.label,
+      update_location:stage.location,
+      update_activity:stage.desc,
+      update_time:newTime,
+      tracking_history:JSON.stringify(history)
+    };
+    if(currentSession){
+      payload.updated_by=currentSession.full_name;
+      payload.username=currentSession.username;
+      payload.session_token=currentSession.token;
+    }
+    const updateRes=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(payload)
+    });
+    if(updateRes.ok){
+      showToast('Accepted — marked Out for Delivery','success');
+      logActivity('Accepted Delivery',s.tracking_number,'Marked Out for Delivery');
+      loadDriverDashboard();
+    } else {
+      showToast('Could not update. Check your connection and try again.','error');
+    }
+  }catch(e){
+    showToast('Network error. Check your connection and try again.','error');
   }
 }
 
@@ -1350,10 +1417,13 @@ function renderVerifyCard(s,contentBox){
       <button id="verifyDeliverBtn" onclick='confirmDeliveryFromVerify(${JSON.stringify(s.tracking_number)})' style="width:100%;background:#16a34a;color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;">Mark as Delivered</button>
 
       <h4 style="font-size:13px;font-weight:800;color:#0D1B3E;margin-bottom:10px;border-top:1px solid #eee;padding-top:16px;">⚠️ Unsuccessful Delivery Attempt?</h4>
+      <label style="font-size:12px;font-weight:700;color:#0D1B3E;display:block;margin-bottom:6px;">Note for this update (shown to the customer)</label>
+      <textarea id="verifyExceptionNotes" placeholder="e.g. Gate was locked, will retry tomorrow morning" rows="2" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;font-family:inherit;"></textarea>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        ${['attempted','rescheduled','returned','addressIssue','customerUnavailable','exception','awaitingAction'].map(key=>
-          `<button onclick='reportVerifyException(${JSON.stringify(s.tracking_number)},"${key}")' style="width:100%;background:#fff;border:1.5px solid #ddd;color:#0D1B3E;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-align:left;">${OPTIONAL_UPDATES[key].label}</button>`
-        ).join('')}
+        ${['attempted','rescheduled','returned','addressIssue','customerUnavailable','exception','awaitingAction'].map(key=>{
+          const isActive=s.update_title===OPTIONAL_UPDATES[key].label;
+          return `<button onclick='reportVerifyException(${JSON.stringify(s.tracking_number)},"${key}",this)' style="width:100%;background:${isActive?'#F47920':'#fff'};border:1.5px solid ${isActive?'#F47920':'#ddd'};color:${isActive?'#fff':'#0D1B3E'};padding:10px;border-radius:8px;font-size:13px;font-weight:${isActive?'800':'600'};cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;">${OPTIONAL_UPDATES[key].label}${isActive?'<span>✓ Selected</span>':''}</button>`;
+        }).join('')}
       </div>
     </div>`:'')}
   `;
@@ -1368,10 +1438,23 @@ function renderVerifyCard(s,contentBox){
 // Lets a driver (or anyone logged in) log an unsuccessful attempt / exception
 // without advancing the shipment's stage - just annotates the current stage,
 // same as the templates admins use in the main dashboard.
-async function reportVerifyException(trackingNumber,key){
+async function reportVerifyException(trackingNumber,key,btnEl){
   const update=OPTIONAL_UPDATES[key];
   if(!update)return;
+  // Instant feedback the moment they tap - don't wait on the network round-trip
+  // for the driver to see their click registered.
+  if(btnEl){
+    btnEl.disabled=true;
+    btnEl.style.opacity='0.7';
+    btnEl.innerHTML=`Saving "${update.label}"...`;
+  }
   const contentBox=document.getElementById('standaloneVerifyContent');
+  const noteEl=document.getElementById('verifyExceptionNotes');
+  const driverNote=noteEl?noteEl.value.trim():'';
+  // Fold the driver's note into the customer-facing description, since this
+  // is the text that actually shows on the tracking page - a separate
+  // "driver_notes" field alone wouldn't be visible there.
+  const activityText=driverNote?`${update.desc} Note from driver: ${driverNote}`:update.desc;
   try{
     const res=await fetch(`${CONFIG.scriptUrl}?action=getShipments`,{redirect:'follow'});
     const data=await res.json();
@@ -1380,6 +1463,22 @@ async function reportVerifyException(trackingNumber,key){
     if(!s){showToast('Shipment not found','error');return;}
 
     const newTime=formatUkTimestamp();
+    const currentIndex=s.status;
+
+    // The customer tracking page reads each stage's text from tracking_history,
+    // not from update_title/update_activity directly - so this has to be kept
+    // in sync or the driver's update never actually reaches the customer.
+    let history=[];
+    try{
+      if(s.tracking_history){
+        const parsed=JSON.parse(s.tracking_history);
+        if(Array.isArray(parsed)) history=parsed;
+      }
+    }catch(e){history=[];}
+    history=history.filter(item=>String(item.status)!==String(currentIndex));
+    history.push({status:String(currentIndex),title:update.label,location:update.location,activity:activityText,time:newTime});
+    history.sort((a,b)=>parseInt(a.status)-parseInt(b.status));
+
     const payload={
       action:'updateStatus',
       tracking_number:s.tracking_number,
@@ -1387,8 +1486,10 @@ async function reportVerifyException(trackingNumber,key){
       route_code:getRouteCode(s),
       update_title:update.label,
       update_location:update.location,
-      update_activity:update.desc,
-      update_time:newTime
+      update_activity:activityText,
+      update_time:newTime,
+      tracking_history:JSON.stringify(history),
+      driver_notes:driverNote
     };
     if(currentSession){
       payload.updated_by=currentSession.full_name;
@@ -1402,15 +1503,17 @@ async function reportVerifyException(trackingNumber,key){
     });
     if(updateRes.ok){
       showToast(`Logged: ${update.label}`,'success');
-      logActivity('Delivery Exception (scan)',s.tracking_number,update.label);
-      const updatedShipment=Object.assign({},s,{update_title:update.label,update_location:update.location,update_activity:update.desc});
+      logActivity('Delivery Exception (scan)',s.tracking_number,driverNote?`${update.label} — ${driverNote}`:update.label);
+      const updatedShipment=Object.assign({},s,{update_title:update.label,update_location:update.location,update_activity:activityText,driver_notes:driverNote,tracking_history:JSON.stringify(history)});
       renderVerifyCard(updatedShipment,contentBox);
     } else {
       showToast('Could not save. Check your connection and try again.','error');
+      if(btnEl){btnEl.disabled=false;btnEl.style.opacity='1';btnEl.innerHTML=update.label;}
     }
   } catch(e){
     console.error('reportVerifyException failed:',e);
     showToast('Something went wrong. Check your connection and try again.','error');
+    if(btnEl){btnEl.disabled=false;btnEl.style.opacity='1';btnEl.innerHTML=update.label;}
   }
 }
 

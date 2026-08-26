@@ -1510,32 +1510,28 @@ async function doTrack(){
     }
     const wrap=document.getElementById('stagesWrap');
     wrap.innerHTML='';
+    // Only show stages up to and including the current one - future stages
+    // stay hidden until the shipment actually reaches them.
     stages.forEach((st,i)=>{
-      const done=i<step,active=i===step,future=i>step;
+      if(i>step) return;
+      const done=i<step,active=i===step;
       const row=document.createElement('div');row.className='stage-row';
       const left=document.createElement('div');left.className='stage-left';
-      const dot=document.createElement('div');dot.className='stage-dot '+(done?'done':active?'active':'future');
+      const dot=document.createElement('div');dot.className='stage-dot '+(done?'done':'active');
       dot.textContent=done?'?':String(i+1);
-      dot.style.cssText=done?'background:var(--navy-dark);color:#fff;font-size:12px;':active?'background:var(--orange);color:#fff;font-size:12px;font-weight:700;':'background:#f0f1f5;color:#9ca3af;font-size:12px;font-weight:700;';
+      dot.style.cssText=done?'background:var(--navy-dark);color:#fff;font-size:12px;':'background:var(--orange);color:#fff;font-size:12px;font-weight:700;';
       left.appendChild(dot);
-      if(i<stages.length-1){const line=document.createElement('div');line.className='stage-line';line.style.background=done?'var(--navy-dark)':'#e5e7eb';left.appendChild(line);}
+      if(i<step){const line=document.createElement('div');line.className='stage-line';line.style.background='var(--navy-dark)';left.appendChild(line);}
       const body=document.createElement('div');body.className='stage-body';
       const record=history.find(item=>String(item.status)===String(i));
-      if(done||active){
-        const details=document.createElement('details');details.className='stage-details';details.open=active;
-        const summary=document.createElement('summary');
-        summary.innerHTML=`<span class="stage-summary-main"><span class="stage-summary-title">${record&&record.title?record.title:(active?title:st.label)}</span><span class="stage-summary-meta">${record&&record.location?record.location:st.location}</span></span><span class="stage-chevron">View</span>`;
-        const detailBody=document.createElement('div');detailBody.className='stage-detail-body';
-        detailBody.innerHTML=`<div class="stage-detail-grid"><div><label>Updated</label><span>${record&&record.time?record.time:'Pending time'}</span></div><div><label>Location</label><span>${record&&record.location?record.location:st.location}</span></div></div><p>${record&&record.activity?record.activity:st.desc}</p>`;
-        details.appendChild(summary);
-        details.appendChild(detailBody);
-        body.appendChild(details);
-      } else {
-        const lbl=document.createElement('div');lbl.className='s-label future';lbl.textContent=st.label;
-        const loc=document.createElement('div');loc.className='s-desc';loc.textContent=st.location;
-        body.appendChild(lbl);
-        body.appendChild(loc);
-      }
+      const details=document.createElement('details');details.className='stage-details';details.open=active;
+      const summary=document.createElement('summary');
+      summary.innerHTML=`<span class="stage-summary-main"><span class="stage-summary-title">${record&&record.title?record.title:(active?title:st.label)}</span><span class="stage-summary-meta">${record&&record.location?record.location:st.location}</span></span><span class="stage-chevron">View</span>`;
+      const detailBody=document.createElement('div');detailBody.className='stage-detail-body';
+      detailBody.innerHTML=`<div class="stage-detail-grid"><div><label>Updated</label><span>${record&&record.time?record.time:'Pending time'}</span></div><div><label>Location</label><span>${record&&record.location?record.location:st.location}</span></div></div><p>${record&&record.activity?record.activity:st.desc}</p>`;
+      details.appendChild(summary);
+      details.appendChild(detailBody);
+      body.appendChild(details);
       row.appendChild(left);row.appendChild(body);wrap.appendChild(row);
     });
     rEl.style.display='block';
