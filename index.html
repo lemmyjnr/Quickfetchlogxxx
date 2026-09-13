@@ -338,6 +338,7 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
     <li><a href="#tracking">Track</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#contact">Contact</a></li>
+    <li><a href="#partners">Partners</a></li>
     <li><a href="#terms">Terms & Policies</a></li>
     <li><a href="#quote" class="nav-cta">Get a Quote</a></li>
   </ul>  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -349,6 +350,7 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
   <a href="#tracking" onclick="closeMobile()">Track Shipment</a>
   <a href="#services" onclick="closeMobile()">Services</a>
   <a href="#contact" onclick="closeMobile()">Contact</a>
+  <a href="#partners" onclick="closeMobile()">Partners</a>
   <a href="#terms" onclick="closeMobile()">Terms & Policies</a>
   <a href="#quote" onclick="closeMobile()" style="color:var(--orange);font-weight:700;">Get a Quote</a>
 </div>
@@ -676,6 +678,8 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Packaging, clearance and home delivery are included in the rates above.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Saturdays.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Outside Lagos:</strong> Drop-off or collection outside Lagos attracts an additional ₦1,500 per kilogram.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Thursday to join that week's shipment.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> 3 to 7 working days.</span></div>
     </div>
   </div>
@@ -723,11 +727,144 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
     </div>
   </div>
   <div class="price-panel" id="panel-other">
-    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:40px;text-align:center;">
-      <div style="font-size:40px;margin-bottom:16px;">📦</div>
-      <h3 style="color:#fff;font-size:22px;font-weight:900;margin-bottom:10px;">USA, Canada & European Routes</h3>
-      <p style="color:rgba(255,255,255,0.55);font-size:15px;line-height:1.7;max-width:440px;margin:0 auto 24px;">Rates for other routes vary based on cargo type, weight and destination. Contact us for a custom quote and we'll get back to you quickly.</p>
-      <a href="#quote" class="btn-orange">Request a Quote</a>
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;line-height:1.6;">Rates below are shown in Naira (₦). Customs clearance and port processing fees may apply on arrival for Express shipments — see notes under each route.</p>
+    <div class="route-tabs" style="margin-bottom:28px;">
+      <button class="r-tab active" onclick="showOtherRoute('usa-canada')">🇺🇸🇨🇦 USA &amp; Canada</button>
+      <button class="r-tab" onclick="showOtherRoute('uk-express')">🇬🇧 UK Express</button>
+      <button class="r-tab" onclick="showOtherRoute('europe')">🇪🇺 Europe</button>
+      <button class="r-tab" onclick="showOtherRoute('china')">🇨🇳 China</button>
+    </div>
+
+    <!-- USA / CANADA -->
+    <div class="other-route-panel active" id="other-usa-canada">
+      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+      <div class="price-cards" style="margin-bottom:8px;">
+        <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
+        <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+        <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
+      </div>
+      <div class="price-notes" style="margin-bottom:28px;">
+        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and labelled in line with FDA and quarantine requirements; additional charges may apply if not provided.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
+      </div>
+
+      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
+      <div class="price-cards" style="margin-bottom:8px;">
+        <div class="price-card" style="grid-column:1/-1;"><div class="p-type">Non-Contraband Goods</div><div class="p-amount">₦18,500</div><div class="p-unit">per kg</div></div>
+      </div>
+      <div class="price-notes">
+        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Thursdays.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Tuesday.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 10 to 15 working days.</span></div>
+      </div>
+    </div>
+
+    <!-- UK EXPRESS -->
+    <div class="other-route-panel" id="other-uk-express" style="display:none;">
+      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+      <div class="price-cards" style="margin-bottom:8px;">
+        <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+        <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
+        <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦22,000</div><div class="p-unit">per kg</div></div>
+      </div>
+      <div class="price-notes">
+        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and labelled in line with UK customs policy on imported food items.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
+      </div>
+      <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:16px;">Looking for our standard UK &rarr; Nigeria bulk cargo rate? See the <a href="#pricing" onclick="showRoute('uk-ng')" style="color:var(--orange);font-weight:700;">UK &rarr; Nigeria tab</a> above.</p>
+    </div>
+
+    <!-- EUROPE -->
+    <div class="other-route-panel" id="other-europe" style="display:none;">
+      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+      <div class="price-cards" style="margin-bottom:8px;">
+        <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
+        <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+        <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦23,000</div><div class="p-unit">per kg</div></div>
+      </div>
+      <div class="price-notes" style="margin-bottom:28px;">
+        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
+      </div>
+
+      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo &mdash; by Zone</h4>
+      <div class="price-cards" style="margin-bottom:8px;">
+        <div class="price-card">
+          <div class="p-type">Zone 1</div>
+          <div class="p-amount">₦16,500</div><div class="p-unit">per kg</div>
+          <div class="p-desc">Croatia, Czech Rep., Estonia, Belgium, Denmark, France, Germany, Hungary, Lithuania, Romania, Luxembourg, Netherlands, Slovakia, Slovenia</div>
+        </div>
+        <div class="price-card">
+          <div class="p-type">Zone 2</div>
+          <div class="p-amount">₦18,000</div><div class="p-unit">per kg</div>
+          <div class="p-desc">Austria, Greece, Italy, Latvia, Poland, Portugal, Spain, Sweden, Switzerland</div>
+        </div>
+        <div class="price-card">
+          <div class="p-type">Zone 3</div>
+          <div class="p-amount">₦20,000</div><div class="p-unit">per kg</div>
+          <div class="p-desc">Finland, Norway</div>
+        </div>
+      </div>
+      <div class="price-notes">
+        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 15kg per booking.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Saturdays.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Thursday.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 7 to 10 working days.</span></div>
+      </div>
+    </div>
+
+    <!-- CHINA -->
+    <div class="other-route-panel" id="other-china" style="display:none;">
+      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
+      <div class="price-cards" style="margin-bottom:8px;">
+        <div class="price-card" style="grid-column:1/-1;">
+          <div class="p-type">Non-Contraband Goods</div>
+          <div class="p-amount">$13.5</div><div class="p-unit">per kg</div>
+          <div style="margin-top:16px;">
+            <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:10px;">Accepted Items</p>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Clothing &amp; personal items</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Electronics, phones and gadgets</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Business supplies</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Food &amp; household items</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Heavy industrial goods &amp; equipment</div>
+            </div>
+            <p style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;">Bags, containers, appliances and vehicles are charged by area and volume.</p>
+          </div>
+        </div>
+      </div>
+      <div class="price-notes">
+        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every weekday.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 3 to 5 working days.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Collection Point:</strong> Guangzhou collection hub.</span></div>
+        <div class="price-note"><div class="dot"></div><span><strong>Doorstep Delivery:</strong> Available nationwide at an additional cost depending on weight, destination and delivery requirements.</span></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:32px;">
+      <a href="#quote" class="btn-orange">Request a Custom Quote</a>
     </div>
   </div>
 </section>
@@ -836,6 +973,21 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> 5 to 7 weeks after departure from seaport (subject to customs and port clearance timelines).</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Collection Point:</strong> Items are to be collected at our Lagos hub.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Doorstep Delivery:</strong> Available nationwide at an additional cost depending on weight, destination and delivery requirements.</span></div>
+    </div>
+
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin:28px 0 14px;">Volumetric Parcels (Priced by Item, Not Weight)</h4>
+    <div class="price-notes">
+      <div class="price-note"><div class="dot"></div><span><strong>Ghana-Must-Go Bags:</strong> Regular £60, Jumbo £80, Extra Large £100</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Corrugated Shipping Boxes:</strong> 28" £100, 32" £130, 38" £150</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Refrigerator:</strong> Table top £70, Double door £150, Deep freezer £200, Extra tall (American model) £300</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>TV Set:</strong> Up to 42" £70, 55" £120, 65" £150, 75" £300, 100" £400</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Sofa Set:</strong> 1-seater £150, 2-seater £220, 3-seater £250</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Barrels:</strong> Regular 120L £100, Large 220L £120</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Gas Cooker:</strong> £120</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Washing Machine:</strong> £120</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Pallets:</strong> Half £400, Full £700</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Cars</strong> (regardless of year or brand): £1,800</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Vans:</strong> Regular £2,200, Large £2,500</span></div>
     </div>
   </div>
 
@@ -1030,13 +1182,7 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <span class="cc-label">South East Hub</span>
       <h3>🇳🇬 Nigeria</h3>
       <div class="ci"><span class="ico">📍</span><span>164 Ehi Road, by York Street, Aba Crown One Plaza, Aba</span></div>
-      <div class="ci"><span class="ico">📞</span><span>Sunny: +2348135604928</span></div>
-    </div>
-    <div class="contact-card">
-      <span class="cc-label">South South Hub</span>
-      <h3>🇳🇬 Nigeria</h3>
-      <div class="ci"><span class="ico">📍</span><span>11 Abbey Erebor Street, Off Technical School Road, Ugbowo, Benin City, Edo State</span></div>
-      <div class="ci"><span class="ico">📞</span><span>Gabriella: +2349020215325</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003557</span></div>
     </div>
     <div class="contact-card">
       <span class="cc-label">UK Airfreight Hub</span>
@@ -1068,6 +1214,280 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       Chat With Us on WhatsApp
     </a>
+  </div>
+</section>
+
+<!-- REGIONAL PARTNERS / SERVICE POINTS -->
+<section id="partners" style="background:#fff;padding:72px 5%;">
+  <span class="sec-tag">Nationwide Network</span>
+  <h2 class="sec-h2">Regional <span>Partners</span> &amp; Service Points</h2>
+  <p class="sec-p">Drop off or collect your shipment at any of our trusted regional partner locations across Nigeria.</p>
+
+  <h3 style="font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin:32px 0 14px;">North Central Hub</h3>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <span class="cc-label">Just Bezi Logistics</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>Shop B8 LS 34, Utako Ultra-Modern Market, Utako, Abuja, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003556, +2348101732427</span></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin:32px 0 14px;">North West Hub</h3>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <span class="cc-label">Kada Messenger</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>25 Constitution Road, Doka, Kaduna, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003556, +2348101732427</span></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin:32px 0 14px;">South-West Hub</h3>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <span class="cc-label">Sendmate Logistics Ltd</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>Shop 11 &amp; 12, OAU Campus, OAU Central Market, Zone D Block 4, Ile-Ife, Osun State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003557, +2348101732427</span></div>
+    </div>
+    <div class="contact-card">
+      <span class="cc-label">Tife Express Logistics</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>Honesty Arena, Lam Adesina Way, Orita Challenge Road, Ibadan, Oyo State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003557, +2348101732427</span></div>
+    </div>
+    <div class="contact-card">
+      <span class="cc-label">Tife Express Logistics</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>Behind Jaye Filling Station, Off Mubinu Road, Opposite Fridaus Academy/RCCG, Osogbo, Osun State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003557, +2348101732427</span></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin:32px 0 14px;">South East Hub</h3>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <span class="cc-label">Uch-Links Logistics</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>43 Nnaji Nwede Street, Achara Layout, Enugu, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003558, +2348101732427</span></div>
+    </div>
+    <div class="contact-card">
+      <span class="cc-label">HS Logistics Onitsha</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>25 New Market Road, Behind Wema Bank, City Centre, Onitsha, Anambra State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003558, +2348101732427</span></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin:32px 0 14px;">South South Hub</h3>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <span class="cc-label">PF Express Logistics</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>7 Akpakpava Road, Avbiama, Benin City, Edo State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003556, +2348101732427</span></div>
+    </div>
+    <div class="contact-card">
+      <span class="cc-label">Heinrich Logistics</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>Block D, Shop 6, Sancta Plaza, Opposite Parallex Bank, Effurun-Sapele Road, Warri, Delta State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003556, +2348101732427</span></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px;">
+    <a href="#become-partner" class="btn-orange" style="background:var(--navy-dark);">Become a QuickFetch Partner &rarr;</a>
+  </div>
+</section>
+
+<!-- BECOME A PARTNER -->
+<section id="become-partner" style="background:var(--navy-dark);padding:72px 5%;">
+  <span class="sec-tag">Grow With Us</span>
+  <h2 class="sec-h2" style="color:#fff;">Become a <span>QuickFetch</span> Partner</h2>
+  <p class="sec-p" style="color:rgba(255,255,255,0.6);max-width:640px;">Your customers already trust you. QuickFetch gives you the infrastructure to offer them more &mdash; expand into international shipping, sourcing and cross-border logistics while creating new revenue opportunities for your business.</p>
+
+  <h3 style="color:#fff;font-size:16px;font-weight:800;margin:32px 0 16px;">Choose the partnership that fits your business</h3>
+  <div class="price-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;">
+    <div class="price-card">
+      <div class="p-type">Retailer</div>
+      <div class="p-desc">Offer QuickFetch services to your customers and earn from every successful transaction.</div>
+    </div>
+    <div class="price-card">
+      <div class="p-type">Reseller</div>
+      <div class="p-desc">Access exclusive partner rates, set your selling price and build additional margins from international shipments.</div>
+    </div>
+    <div class="price-card">
+      <div class="p-type">White Label</div>
+      <div class="p-desc">Offer international logistics under your own brand, powered by QuickFetch's international infrastructure.</div>
+    </div>
+  </div>
+
+  <h3 style="color:#fff;font-size:16px;font-weight:800;margin:40px 0 16px;">Your partnership can unlock</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>International air &amp; sea freight</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Preferential partner rates &amp; revenue opportunities</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Packaging, warehousing &amp; logistics support</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Additional shipment protection</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>International sourcing &amp; procurement</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Staff training &amp; operational development</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Business listing &amp; marketing exposure</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Dedicated partner &amp; customer support</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Access to loans and credit facilities</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--orange);">✓</span>Access to our wider business network</div>
+  </div>
+
+  <p style="color:rgba(255,255,255,0.6);font-size:14px;margin:32px 0 6px;max-width:640px;line-height:1.7;">You bring the customers and local reach. We provide the international network, infrastructure and expertise.</p>
+  <p style="color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:28px;max-width:640px;line-height:1.7;">Ready to grow beyond your current market? Fill out the partnership form below and we'll get in touch within 48 hours. Terms and conditions apply.</p>
+  <a href="#partner-form" class="btn-orange">Fill Out the Partnership Form</a>
+</section>
+
+<!-- PARTNER KYC & BUSINESS PROFILE FORM -->
+<section class="quote-section" id="partner-form" style="background:var(--gray);padding:72px 5%;">
+  <div class="quote-inner">
+    <div class="quote-left">
+      <span class="sec-tag">Partner Application</span>
+      <h2 class="sec-h2">Partner KYC &amp;<br><span>Business Profile</span></h2>
+      <p class="sec-p">Help us understand your business and recommend the right partnership structure.</p>
+    </div>
+    <div class="quote-form">
+      <h3>Partnership Application Form</h3>
+      <div id="partner-success" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:16px;font-size:14px;color:#15803d;line-height:1.6;">
+        ✅ <strong>Application received!</strong> Our partnerships team will get in touch within 48 hours.
+      </div>
+      <div id="partner-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin-bottom:16px;font-size:14px;color:#dc2626;"></div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:20px 0 10px;">1. Business Information</h4>
+      <div class="form-row">
+        <div class="fg"><label>Business / Trading Name *</label><input type="text" id="p-biz-name" placeholder="Your business name"/></div>
+        <div class="fg"><label>Business Owner / Principal Contact *</label><input type="text" id="p-owner" placeholder="Full name"/></div>
+      </div>
+      <div class="fg"><label>Business Registration / CAC No. (Optional)</label><input type="text" id="p-cac" placeholder="RC number, if registered"/></div>
+      <div class="fg"><label>Year Business Commenced *</label>
+        <select id="p-year">
+          <option value="">Select an option</option>
+          <option>Less than 1 year</option><option>1-3 years</option>
+          <option>3-5 years</option><option>5-10 years</option><option>10+ years</option>
+        </select>
+      </div>
+      <div class="fg"><label>Business Address *</label><input type="text" id="p-address" placeholder="Street address"/></div>
+      <div class="fg"><label>City / State *</label><input type="text" id="p-city-state" placeholder="e.g. Lagos, Lagos State"/></div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:24px 0 10px;">2. Contact Information</h4>
+      <div class="form-row">
+        <div class="fg"><label>Business / Operational Phone *</label><input type="tel" id="p-biz-phone" placeholder="+234..."/></div>
+        <div class="fg"><label>Owner / Principal Phone *</label><input type="tel" id="p-owner-phone" placeholder="+234..."/></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Business Email *</label><input type="email" id="p-email" placeholder="business@email.com"/></div>
+        <div class="fg"><label>Website / Social Media (Optional)</label><input type="text" id="p-web" placeholder="Instagram, website, etc."/></div>
+      </div>
+      <div class="fg"><label>Preferred Method of Communication *</label>
+        <select id="p-comm">
+          <option value="">Select an option</option>
+          <option>WhatsApp</option><option>Phone</option><option>Email</option>
+        </select>
+      </div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:24px 0 10px;">3. Business Profile</h4>
+      <div class="fg"><label>What best describes your business? *</label>
+        <select id="p-biz-type">
+          <option value="">Select an option</option>
+          <option>Logistics/Dispatch</option><option>Freight Forwarding</option>
+          <option>E-commerce/Retail</option><option>Import/Export</option>
+          <option>Sourcing/Procurement</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Years in Logistics-Related Services *</label>
+          <select id="p-years-logistics">
+            <option value="">Select an option</option>
+            <option>Less than 1 year</option><option>1-3 years</option>
+            <option>3-5 years</option><option>5+ years</option>
+          </select>
+        </div>
+        <div class="fg"><label>Estimated Int'l Shipment Volume / Month *</label>
+          <select id="p-volume">
+            <option value="">Select an option</option>
+            <option>1-10 shipments</option><option>10-30 shipments</option>
+            <option>30-50 shipments</option><option>50+ shipments</option>
+          </select>
+        </div>
+      </div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:24px 0 10px;">4. Partnership Model</h4>
+      <p style="font-size:12px;color:var(--text);margin-bottom:10px;">Which partnership model are you interested in? Select one or more.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px;">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-model" value="Retailer" style="accent-color:var(--orange);width:16px;height:16px;">Retailer</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-model" value="Reseller" style="accent-color:var(--orange);width:16px;height:16px;">Reseller</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-model" value="White Label" style="accent-color:var(--orange);width:16px;height:16px;">White Label</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-model" value="Not sure - recommend the best option" style="accent-color:var(--orange);width:16px;height:16px;">Not sure &ndash; recommend the best option</label>
+      </div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:24px 0 10px;">5. Services of Interest</h4>
+      <p style="font-size:12px;color:var(--text);margin-bottom:10px;">Which QuickFetch services are you interested in offering? Select all that apply.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px 20px;margin-bottom:16px;">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="International Air Freight" style="accent-color:var(--orange);width:16px;height:16px;">International Air Freight</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="International Sea Freight" style="accent-color:var(--orange);width:16px;height:16px;">International Sea Freight</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="UK/Nigeria Shipping" style="accent-color:var(--orange);width:16px;height:16px;">UK/Nigeria Shipping</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="USA/Canada/Europe Shipping" style="accent-color:var(--orange);width:16px;height:16px;">USA/Canada/Europe Shipping</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="Sourcing & Procurement" style="accent-color:var(--orange);width:16px;height:16px;">Sourcing &amp; Procurement</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="Packaging Services" style="accent-color:var(--orange);width:16px;height:16px;">Packaging Services</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="Warehousing & Storage" style="accent-color:var(--orange);width:16px;height:16px;">Warehousing &amp; Storage</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="Last-Mile Delivery" style="accent-color:var(--orange);width:16px;height:16px;">Last-Mile Delivery</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-service" value="Shop & Ship" style="accent-color:var(--orange);width:16px;height:16px;">Shop &amp; Ship</label>
+      </div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:24px 0 10px;">6. Your Business Needs</h4>
+      <p style="font-size:12px;color:var(--text);margin-bottom:10px;">What are you primarily looking to achieve through this partnership?</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px 20px;margin-bottom:16px;">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Expand international services" style="accent-color:var(--orange);width:16px;height:16px;">Expand international services</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Increase revenue" style="accent-color:var(--orange);width:16px;height:16px;">Increase revenue</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Access better shipping rates" style="accent-color:var(--orange);width:16px;height:16px;">Access better shipping rates</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Retain existing customers" style="accent-color:var(--orange);width:16px;height:16px;">Retain existing customers</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Expand customer reach" style="accent-color:var(--orange);width:16px;height:16px;">Expand customer reach</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Access warehousing/logistics infrastructure" style="accent-color:var(--orange);width:16px;height:16px;">Access warehousing/logistics infrastructure</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-need" value="Sourcing & procurement support" style="accent-color:var(--orange);width:16px;height:16px;">Sourcing &amp; procurement support</label>
+      </div>
+      <div class="fg"><label>Main Shipment Destinations</label></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px;">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-dest" value="UK" style="accent-color:var(--orange);width:16px;height:16px;">UK</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-dest" value="USA" style="accent-color:var(--orange);width:16px;height:16px;">USA</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-dest" value="Canada" style="accent-color:var(--orange);width:16px;height:16px;">Canada</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-dest" value="Europe" style="accent-color:var(--orange);width:16px;height:16px;">Europe</label>
+      </div>
+      <div class="fg"><label>Do you currently work with another international logistics provider?</label>
+        <select id="p-other-provider">
+          <option value="">Select an option</option>
+          <option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div class="fg"><label>If yes, what would you like QuickFetch to improve or provide differently?</label><textarea id="p-improve" placeholder="Optional"></textarea></div>
+
+      <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin:24px 0 10px;">7. Additional Support</h4>
+      <p style="font-size:12px;color:var(--text);margin-bottom:10px;">Which additional support would be valuable to your business?</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px 20px;margin-bottom:20px;">
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Staff Training & Development" style="accent-color:var(--orange);width:16px;height:16px;">Staff Training &amp; Development</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Packaging & Shipping Support" style="accent-color:var(--orange);width:16px;height:16px;">Packaging &amp; Shipping Support</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Dedicated Partner Support" style="accent-color:var(--orange);width:16px;height:16px;">Dedicated Partner Support</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Marketing & Business Promotion" style="accent-color:var(--orange);width:16px;height:16px;">Marketing &amp; Business Promotion</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Storage/Warehousing" style="accent-color:var(--orange);width:16px;height:16px;">Storage/Warehousing</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Credit Account (subject to approval)" style="accent-color:var(--orange);width:16px;height:16px;">Credit Account (subject to approval)</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--navy-dark);cursor:pointer;"><input type="checkbox" class="p-support" value="Business Credit/Loan Services" style="accent-color:var(--orange);width:16px;height:16px;">Business Credit/Loan Services (subject to eligibility)</label>
+      </div>
+
+      <div style="background:var(--gray);border-radius:10px;padding:20px;margin-bottom:16px;">
+        <p style="font-size:14px;font-weight:700;color:var(--navy-dark);margin-bottom:14px;">8. Declaration</p>
+        <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--navy-dark);cursor:pointer;margin-bottom:0;line-height:1.6;">
+          <input type="checkbox" id="p-declare" onchange="checkPartnerConsentReady()" style="margin-top:3px;accent-color:var(--orange);width:16px;height:16px;flex-shrink:0;">
+          I confirm that the information provided above is accurate to the best of my knowledge and understand that QuickFetch Logistics may contact me regarding partnership opportunities and verification of the information provided.
+        </label>
+      </div>
+      <p id="partner-consent-warning" style="display:none;font-size:12px;color:#dc2626;margin-bottom:10px;font-weight:600;">⚠️ Please confirm the declaration above before submitting.</p>
+
+      <button class="form-submit" id="partnerBtnEl" onclick="submitPartnerForm()" disabled style="opacity:0.5;cursor:not-allowed;">Submit Application</button>
+    </div>
   </div>
 </section>
 
@@ -1164,6 +1584,8 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
         <li><a href="#tracking">Track Shipment</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#pricing">Shipping Rates</a></li>
+        <li><a href="#partners">Regional Partners</a></li>
+        <li><a href="#become-partner">Become a Partner</a></li>
         <li><a href="#shopship">Shop & Ship</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><a href="#terms">Terms &amp; Policies</a></li>
@@ -1285,6 +1707,12 @@ function checkConsentReady(){
   var warn=document.getElementById('consent-warning');
   if(btn){btn.disabled=!all;btn.style.opacity=all?'1':'0.5';btn.style.cursor=all?'pointer':'not-allowed';}
 }
+function checkPartnerConsentReady(){
+  var d=document.getElementById('p-declare');
+  var btn=document.getElementById('partnerBtnEl');
+  var ok=d&&d.checked;
+  if(btn){btn.disabled=!ok;btn.style.opacity=ok?'1':'0.5';btn.style.cursor=ok?'pointer':'not-allowed';}
+}
 function toggleMenu(){
   var m=document.getElementById('mobileMenu');
   if(m) m.classList.toggle('open');
@@ -1299,7 +1727,15 @@ function showRoute(id){
   document.querySelectorAll('.price-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.r-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  event.target.classList.add('active');
+  if(typeof event!=='undefined'&&event.target) event.target.classList.add('active');
+}
+function showOtherRoute(id){
+  const panel=document.getElementById('panel-other');
+  panel.querySelectorAll('.other-route-panel').forEach(p=>{p.style.display='none';p.classList.remove('active');});
+  panel.querySelectorAll('.route-tabs .r-tab').forEach(t=>t.classList.remove('active'));
+  const target=document.getElementById('other-'+id);
+  if(target){target.style.display='block';target.classList.add('active');}
+  if(typeof event!=='undefined'&&event.target) event.target.classList.add('active');
 }
 
 function showSeaRoute(id){
@@ -1719,6 +2155,96 @@ async function submitQuote(){
     }
   }catch(e){
     btn.textContent='Get Quote';btn.disabled=false;
+    errorEl.textContent='Network error. Please check your connection and try again.';
+    errorEl.style.display='block';
+  }
+}
+
+async function submitPartnerForm(){
+  const declared=document.getElementById('p-declare').checked;
+  if(!declared){document.getElementById('partner-consent-warning').style.display='block';return;}
+
+  const bizName=document.getElementById('p-biz-name').value.trim();
+  const owner=document.getElementById('p-owner').value.trim();
+  const cac=document.getElementById('p-cac').value.trim();
+  const yearStarted=document.getElementById('p-year').value;
+  const address=document.getElementById('p-address').value.trim();
+  const cityState=document.getElementById('p-city-state').value.trim();
+  const bizPhone=document.getElementById('p-biz-phone').value.trim();
+  const ownerPhone=document.getElementById('p-owner-phone').value.trim();
+  const email=document.getElementById('p-email').value.trim();
+  const web=document.getElementById('p-web').value.trim();
+  const comm=document.getElementById('p-comm').value;
+  const bizType=document.getElementById('p-biz-type').value;
+  const yearsLogistics=document.getElementById('p-years-logistics').value;
+  const volume=document.getElementById('p-volume').value;
+  const models=Array.from(document.querySelectorAll('.p-model:checked')).map(el=>el.value).join(', ');
+  const services=Array.from(document.querySelectorAll('.p-service:checked')).map(el=>el.value).join(', ');
+  const needs=Array.from(document.querySelectorAll('.p-need:checked')).map(el=>el.value).join(', ');
+  const destinations=Array.from(document.querySelectorAll('.p-dest:checked')).map(el=>el.value).join(', ');
+  const otherProvider=document.getElementById('p-other-provider').value;
+  const improve=document.getElementById('p-improve').value.trim();
+  const support=Array.from(document.querySelectorAll('.p-support:checked')).map(el=>el.value).join(', ');
+
+  const btn=document.getElementById('partnerBtnEl');
+  const successEl=document.getElementById('partner-success');
+  const errorEl=document.getElementById('partner-error');
+  successEl.style.display='none';errorEl.style.display='none';
+
+  if(!bizName||!owner||!yearStarted||!address||!cityState||!bizPhone||!ownerPhone||!email||!comm||!bizType||!yearsLogistics||!volume){
+    errorEl.textContent='Please fill in all required fields (marked *).';
+    errorEl.style.display='block';return;
+  }
+
+  btn.textContent='Sending...';btn.disabled=true;
+  const today=new Date().toLocaleDateString('en-GB');
+
+  const sheetData={
+    business_name:bizName,owner_name:owner,cac_number:cac,year_started:yearStarted,
+    address:address,city_state:cityState,business_phone:bizPhone,owner_phone:ownerPhone,
+    email:email,website:web,preferred_contact:comm,business_type:bizType,
+    years_in_logistics:yearsLogistics,monthly_volume:volume,partnership_models:models,
+    services_of_interest:services,business_needs:needs,main_destinations:destinations,
+    works_with_other_provider:otherProvider,improvement_notes:improve,additional_support:support,
+    date_submitted:today
+  };
+
+  const formspreeData={
+    business_name:bizName,owner_name:owner,cac_number:cac,year_started:yearStarted,
+    address:`${address}, ${cityState}`,business_phone:bizPhone,owner_phone:ownerPhone,
+    email:email,website:web,preferred_contact:comm,business_type:bizType,
+    years_in_logistics:yearsLogistics,monthly_volume:volume,partnership_models:models,
+    services_of_interest:services,business_needs:needs,main_destinations:destinations,
+    works_with_other_provider:otherProvider,improvement_notes:improve,additional_support:support,
+    _replyto:email,
+    _subject:`New Partner Application from ${bizName} - QuickFetch Logistics`
+  };
+
+  try{
+    const [sheetRes,formRes]=await Promise.all([
+      fetch(SCRIPT_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'addPartnerApplication',...sheetData})}),
+      fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(formspreeData)})
+    ]);
+
+    btn.textContent='Submit Application';btn.disabled=false;
+
+    if(sheetRes.ok||formRes.ok){
+      successEl.style.display='block';
+      ['p-biz-name','p-owner','p-cac','p-address','p-city-state','p-biz-phone','p-owner-phone','p-email','p-web','p-improve'].forEach(id=>{
+        const el=document.getElementById(id);if(el)el.value='';
+      });
+      ['p-year','p-comm','p-biz-type','p-years-logistics','p-volume','p-other-provider'].forEach(id=>{
+        const el=document.getElementById(id);if(el)el.selectedIndex=0;
+      });
+      document.querySelectorAll('.p-model,.p-service,.p-need,.p-dest,.p-support').forEach(el=>{el.checked=false;});
+      document.getElementById('p-declare').checked=false;
+      checkPartnerConsentReady();
+    } else {
+      errorEl.textContent='Something went wrong. Please try again or contact us on WhatsApp.';
+      errorEl.style.display='block';
+    }
+  }catch(e){
+    btn.textContent='Submit Application';btn.disabled=false;
     errorEl.textContent='Network error. Please check your connection and try again.';
     errorEl.style.display='block';
   }
