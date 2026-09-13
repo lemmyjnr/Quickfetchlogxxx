@@ -355,6 +355,10 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <a onclick="showPage('requests')" id="nav-requests">
         <span class="nav-icon">📬</span> Quote Requests
       </a>
+      <a onclick="showPage('partner-apps')" id="nav-partner-apps">
+        <span class="nav-icon">🤝</span> Partner Applications
+        <span id="navPartnerAppsBadge" style="display:none;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:auto;">0</span>
+      </a>
       <a onclick="showPage('settings')" id="nav-settings">
         <span class="nav-icon">⚙️</span> Settings
       </a>
@@ -381,6 +385,9 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
     </div>
 
     <div class="page-content">
+      <div id="partnerScopeBanner" style="display:none;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#9a3412;">
+        🤝 You're viewing your <strong>Partner Panel</strong> — only shipments you've created are shown here. Contact QuickFetch admin for anything outside your own shipments.
+      </div>
 
       <!-- DASHBOARD PAGE -->
       <div class="page active" id="page-dashboard">
@@ -390,6 +397,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
           <div class="stat-card green"><span class="s-num" id="stat-delivered">0</span><div class="s-lbl">Delivered</div></div>
           <div class="stat-card amber"><span class="s-num" id="stat-pending">0</span><div class="s-lbl">Pending / At Hub</div></div>
           <div class="stat-card" style="border-top-color:#7c3aed;"><span class="s-num" id="stat-new-requests" style="color:#7c3aed;">0</span><div class="s-lbl">New Requests</div></div>
+          <div class="stat-card" id="statPartnerAppsCard" style="border-top-color:var(--orange);cursor:pointer;" onclick="showPage('partner-apps')"><span class="s-num" id="stat-partner-apps" style="color:var(--orange);">0</span><div class="s-lbl">Pending Partner Applications</div></div>
         </div>
         <div class="card">
           <div class="card-header">
@@ -644,6 +652,33 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
           </div>
         </div>
       </div>
+
+      <!-- PARTNER APPLICATIONS PAGE -->
+      <div class="page" id="page-partner-apps">
+        <div class="card">
+          <div class="card-header">
+            <h3>Partner Applications</h3>
+            <div class="card-actions">
+              <input type="text" class="search-input" placeholder="Search business, owner, email..." oninput="filterPartnerApplications(this.value)" id="paSearchInput"/>
+              <select class="filter-select" onchange="filterPartnerApplications(document.getElementById('paSearchInput').value)" id="paStatusFilter">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="declined">Declined</option>
+              </select>
+              <button class="refresh-btn" onclick="loadPartnerApplications()">↻ Refresh</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Date</th><th>Business</th><th>Owner</th><th>Phone</th><th>Email</th><th>Model(s)</th><th>Monthly Vol.</th><th>Status</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="partner-apps-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div class="page" id="page-settings">
         <div class="settings-grid">
           <div class="settings-card">
@@ -734,7 +769,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
             </div>
             <div class="fg">
               <label>Full Name</label>
-              <input type="text" id="nu-fullname" placeholder="e.g. Jane Okafor"/>
+              <input type="text" id="nu-fullname" placeholder="e.g. Jane Okafor, or a partner's business name"/>
             </div>
             <div class="fg">
               <label>Temporary Password</label>
@@ -745,6 +780,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
               <select id="nu-role">
                 <option value="Staff">Staff — can add/update shipments</option>
                 <option value="Driver">Driver — can only confirm deliveries (scan/lookup only)</option>
+                <option value="Partner">Partner — can add/update/batch only their own shipments</option>
                 <option value="Admin">Admin — full access, can manage users</option>
               </select>
             </div>
@@ -1050,6 +1086,9 @@ function clearSession(){
 }
 function isAdminRole(){
   return !!(currentSession && currentSession.role==='Admin');
+}
+function isPartnerRole(){
+  return !!(currentSession && currentSession.role==='Partner');
 }
 
 // Every write action goes through this so the person who did it is always
@@ -1686,18 +1725,27 @@ async function sendTrackingEmail(shipment){
     return;
   }
   try{
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      email: shipment.email,
-      to_name: shipment.full_name || 'Customer',
-      tracking_number: shipment.tracking_number,
-      freight_type: shipment.freight_type,
-      origin: shipment.origin,
-      destination: shipment.destination,
-      logo_url: COMPANY_LOGO_URL
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({
+        action:'sendBookingEmail',
+        email: shipment.email,
+        full_name: shipment.full_name || 'Customer',
+        tracking_number: shipment.tracking_number,
+        freight_type: shipment.freight_type,
+        origin: shipment.origin,
+        destination: shipment.destination
+      })
     });
-    showToast(`Tracking email sent to ${shipment.email}`,'success');
+    const data=await res.json();
+    if(data && data.success){
+      showToast(`Tracking email sent to ${shipment.email}`,'success');
+    } else {
+      throw new Error((data&&data.error)||'Unknown error');
+    }
   } catch(err){
-    console.error('EmailJS send failed:',err);
+    console.error('Booking email send failed:',err);
     showToast('Shipment created, but email could not be sent. Notify customer manually.','error');
   }
 }
@@ -1708,23 +1756,30 @@ async function sendArrivalEmail(shipment){
     return;
   }
   try{
-    const templateId=getArrivalTemplateId(shipment);
-    await emailjs.send(EMAILJS_SERVICE_ID, templateId, {
-      email: shipment.email,
-      to_name: shipment.full_name || 'Customer',
-      tracking_number: shipment.tracking_number,
-      freight_type: shipment.freight_type,
-      origin: shipment.origin,
-      destination: shipment.destination,
-      update_location: shipment.update_location || '',
-      update_activity: shipment.update_activity || '',
-      arrival_date: formatEmailTimestamp(),
-      tracking_url: TRACKING_PAGE_URL,
-      logo_url: COMPANY_LOGO_URL
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({
+        action:'sendArrivalEmail',
+        email: shipment.email,
+        full_name: shipment.full_name || 'Customer',
+        tracking_number: shipment.tracking_number,
+        freight_type: shipment.freight_type,
+        origin: shipment.origin,
+        destination: shipment.destination,
+        update_location: shipment.update_location || '',
+        update_activity: shipment.update_activity || '',
+        arrival_date: formatEmailTimestamp()
+      })
     });
-    showToast(`Arrival email sent to ${shipment.email}`,'success');
+    const data=await res.json();
+    if(data && data.success){
+      showToast(`Arrival email sent to ${shipment.email}`,'success');
+    } else {
+      throw new Error((data&&data.error)||'Unknown error');
+    }
   } catch(err){
-    console.error('Arrival EmailJS send failed:',err);
+    console.error('Arrival email send failed:',err);
     showToast('Status updated, but arrival email could not be sent. Notify customer manually.','error');
   }
 }
@@ -1736,24 +1791,33 @@ async function sendDeliveredEmail(shipment,options){
     return;
   }
   try{
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_DELIVERED_TEMPLATE_ID, {
-      email: shipment.email,
-      to_name: shipment.full_name || 'Customer',
-      tracking_number: shipment.tracking_number,
-      freight_type: shipment.freight_type,
-      origin: shipment.origin,
-      destination: shipment.destination,
-      update_location: shipment.update_location || '',
-      update_activity: shipment.update_activity || '',
-      delivered_date: options.deliveredDate || formatEmailTimestamp(),
-      received_by: shipment.received_by || '',
-      delivered_by: shipment.delivered_by || '',
-      proof_of_delivery_url: shipment.proof_of_delivery_url || '',
-      logo_url: COMPANY_LOGO_URL
+    const res=await fetch(CONFIG.scriptUrl,{
+      method:'POST',redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({
+        action:'sendDeliveredEmail',
+        email: shipment.email,
+        full_name: shipment.full_name || 'Customer',
+        tracking_number: shipment.tracking_number,
+        freight_type: shipment.freight_type,
+        origin: shipment.origin,
+        destination: shipment.destination,
+        update_location: shipment.update_location || '',
+        update_activity: shipment.update_activity || '',
+        delivered_date: options.deliveredDate || formatEmailTimestamp(),
+        received_by: shipment.received_by || '',
+        delivered_by: shipment.delivered_by || '',
+        proof_of_delivery_url: shipment.proof_of_delivery_url || ''
+      })
     });
-    showToast(`Delivered email sent to ${shipment.email}`,'success');
+    const data=await res.json();
+    if(data && data.success){
+      showToast(`Delivered email sent to ${shipment.email}`,'success');
+    } else {
+      throw new Error((data&&data.error)||'Unknown error');
+    }
   } catch(err){
-    console.error('Delivered EmailJS send failed:',err);
+    console.error('Delivered email send failed:',err);
     showToast('Status updated, but delivered email could not be sent. Notify customer manually.','error');
   }
 }
@@ -2107,6 +2171,16 @@ function showAdmin(){
     if(myLabel) myLabel.textContent=currentSession.username;
     document.getElementById('nav-users').style.display=isAdminRole()?'flex':'none';
     document.getElementById('nav-settings').style.display=isAdminRole()?'flex':'none';
+    const navRequests=document.getElementById('nav-requests');
+    if(navRequests) navRequests.style.display=isPartnerRole()?'none':'flex';
+    const navPartnerApps=document.getElementById('nav-partner-apps');
+    if(navPartnerApps) navPartnerApps.style.display=isAdminRole()?'flex':'none';
+    const statPartnerAppsCard=document.getElementById('statPartnerAppsCard');
+    if(statPartnerAppsCard) statPartnerAppsCard.style.display=isAdminRole()?'block':'none';
+    const panelTag=document.querySelector('.sidebar-logo .panel-tag');
+    if(panelTag) panelTag.textContent=isPartnerRole()?'Partner Panel':'Admin Panel';
+    const partnerBanner=document.getElementById('partnerScopeBanner');
+    if(partnerBanner) partnerBanner.style.display=isPartnerRole()?'block':'none';
     const manageCard=document.getElementById('manageUsersCard');
     if(manageCard) manageCard.style.display=isAdminRole()?'block':'none';
     const addUserCard=document.getElementById('addUserCard');
@@ -2115,6 +2189,7 @@ function showAdmin(){
   generateTrackingNumber();
   onFreightChange();
   renderStageReference();
+  if(isAdminRole()) loadPartnerApplications();
   loadShipments().then(()=>{
     checkAndShowVerifyPage();
   }).catch(()=>{
@@ -2149,6 +2224,7 @@ function showPage(page){
   document.getElementById('pageTitle').textContent=titles[page]||'';
   if(page==='add')generateTrackingNumber();
   if(page==='requests')loadRequests();
+  if(page==='partner-apps')loadPartnerApplications();
   if(page==='batches')renderBatches();
   if(page==='users'){
     if(isAdminRole()) loadUsers();
@@ -2173,6 +2249,15 @@ async function loadShipments(){
       return;
     }
     allShipments=Array.isArray(data)?data:[];
+    if(isPartnerRole()){
+      // Partners only ever see shipments they created themselves. This filter
+      // is client-side (the Apps Script backend currently returns all
+      // shipments) so it hides the data in the UI, but it does NOT stop a
+      // technically-savvy partner from seeing other shipments in their
+      // browser's network tab. For real data privacy this should also be
+      // filtered server-side in the Apps Script by created_by_partner.
+      allShipments=allShipments.filter(s=>s.created_by_partner===currentSession.username);
+    }
     renderTables();
     updateStats();
   } catch(e){
@@ -2219,7 +2304,7 @@ function renderTableBody(id,data,full){
       return `<tr onclick="viewShipmentDetails('${s.tracking_number}')" style="cursor:pointer;" title="Click to view full shipment details">
         <td onclick="event.stopPropagation();"><input type="checkbox" class="row-checkbox" data-tracking="${s.tracking_number}" ${checked} onchange="toggleRowSelection('${s.tracking_number}',this.checked)"/></td>
         <td><span class="tracking-num">${s.tracking_number}</span></td>
-        <td>${s.full_name||'-'}</td>
+        <td>${s.full_name||'-'}${s.created_by_partner_name?`<br><span style="background:#eef2ff;color:#4338ca;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px;">🤝 ${s.created_by_partner_name}</span>`:''}</td>
         <td>${s.phone||'-'}</td>
         <td>${route}</td>
         <td>${s.freight_type||'-'}</td>
@@ -2239,7 +2324,7 @@ function renderTableBody(id,data,full){
       return `<tr onclick="viewShipmentDetails('${s.tracking_number}')" style="cursor:pointer;" title="Click to view full shipment details">
         <td></td>
         <td><span class="tracking-num">${s.tracking_number}</span></td>
-        <td>${s.full_name||'-'}</td>
+        <td>${s.full_name||'-'}${s.created_by_partner_name?`<br><span style="background:#eef2ff;color:#4338ca;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px;">🤝 ${s.created_by_partner_name}</span>`:''}</td>
         <td>${route}</td>
         <td>${s.freight_type||'-'}</td>
         <td>${badge}</td>
@@ -2412,7 +2497,9 @@ async function addShipment(){
     }]),
     created_date:today,
     notes:notes,
-    batch_id:batchId
+    batch_id:batchId,
+    created_by_partner:isPartnerRole()?currentSession.username:'',
+    created_by_partner_name:isPartnerRole()?currentSession.full_name:''
   };
 
   try{
@@ -2584,6 +2671,8 @@ function viewShipmentDetails(trackingNum){
       ${field('Shipment Date',formatDateDisplay(s.created_date))}
     </div>
 
+    ${s.created_by_partner_name?`<div style="margin-top:12px;">${field('Created By Partner','🤝 '+s.created_by_partner_name)}</div>`:''}
+
     <div style="margin-top:12px;">
       ${field('Delivery Address',fullAddress)}
     </div>
@@ -2599,6 +2688,7 @@ function viewShipmentDetails(trackingNum){
 
     ${s.notes&&s.notes.trim()?`<div style="margin-top:12px;">${field('Notes',s.notes)}</div>`:''}
 
+    ${!isPartnerRole()?`
     <div style="margin-top:12px;background:var(--gray);border-radius:8px;padding:14px;">
       <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);margin-bottom:8px;">🚚 Assigned Driver</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -2608,7 +2698,7 @@ function viewShipmentDetails(trackingNum){
         <button class="action-btn edit" onclick="assignDriverToShipment('${s.tracking_number}')">Assign</button>
       </div>
       <div style="font-size:12px;color:var(--text);margin-top:6px;">Currently: <strong>${s.assigned_driver?s.assigned_driver:'Unassigned'}</strong></div>
-    </div>
+    </div>` : ''}
 
     ${s.driver_notes&&s.driver_notes.trim()?`<div style="margin-top:12px;">${field("Driver's Notes",s.driver_notes)}</div>`:''}
 
@@ -2631,7 +2721,7 @@ function viewShipmentDetails(trackingNum){
   `;
 
   document.getElementById('viewModal').classList.add('open');
-  populateDriverSelect(s.assigned_driver);
+  if(!isPartnerRole()) populateDriverSelect(s.assigned_driver);
 }
 
 // Loads the list of active Driver-role accounts into the assignment dropdown,
@@ -3459,6 +3549,204 @@ function convertToShipment(idx){
     showToast('Request loaded into shipment form. Review and confirm.','success');
   },300);
 }
+
+// ===== PARTNER APPLICATIONS =====
+let allPartnerApps=[];
+
+async function loadPartnerApplications(){
+  try{
+    const res=await fetch(`${CONFIG.scriptUrl}?action=getPartnerApplications`,{redirect:'follow'});
+    const data=await res.json();
+    if(data&&data.error){
+      console.error('Apps Script error:',data.error);
+      allPartnerApps=[];
+      renderPartnerApplications([]);
+      return;
+    }
+    allPartnerApps=Array.isArray(data)?data:[];
+    renderPartnerApplications(allPartnerApps);
+    updatePartnerAppsBadge();
+  }catch(e){
+    console.error('loadPartnerApplications exception:',e);
+    allPartnerApps=[];
+    renderPartnerApplications([]);
+  }
+}
+
+function updatePartnerAppsBadge(){
+  const pending=allPartnerApps.filter(a=>!a.app_status||a.app_status==='pending').length;
+  const statEl=document.getElementById('stat-partner-apps');
+  if(statEl) statEl.textContent=pending;
+  const badge=document.getElementById('navPartnerAppsBadge');
+  if(badge){
+    if(pending>0){badge.textContent=pending;badge.style.display='inline-block';}
+    else{badge.style.display='none';}
+  }
+}
+
+function renderPartnerApplications(data){
+  const tbody=document.getElementById('partner-apps-table-body');
+  if(!data||data.length===0){
+    tbody.innerHTML=`<tr><td colspan="9" class="empty-state"><div class="empty-icon">🤝</div><p>No partner applications yet.</p></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=[...data].reverse().map((a)=>{
+    const idx=allPartnerApps.indexOf(a);
+    const status=a.app_status||'pending';
+    const statusColor=status==='approved'?'badge-9':status==='declined'?'badge-0':'badge-1';
+    const statusLabel=status.charAt(0).toUpperCase()+status.slice(1);
+    return `<tr style="cursor:pointer;" onclick="viewPartnerApplication(${idx})">
+      <td style="font-size:12px;color:var(--text);">${a.date_submitted||'-'}</td>
+      <td><strong>${a.business_name||'-'}</strong></td>
+      <td>${a.owner_name||'-'}</td>
+      <td style="font-size:12px;">${a.business_phone||'-'}</td>
+      <td style="font-size:12px;">${a.email||'-'}</td>
+      <td style="font-size:12px;">${a.partnership_models||'-'}</td>
+      <td>${a.monthly_volume||'-'}</td>
+      <td><span class="badge ${statusColor}">${statusLabel}</span></td>
+      <td onclick="event.stopPropagation();">
+        <div class="td-actions">
+          ${status==='pending'?`
+            <button class="action-btn" style="background:rgba(22,163,74,0.08);color:var(--success);" onclick="approvePartnerApplication(${idx})">Approve</button>
+            <button class="action-btn delete" onclick="declinePartnerApplication(${idx})">Decline</button>
+          `:''}
+          <button class="action-btn edit" onclick="viewPartnerApplication(${idx})">View</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPartnerApplications(q){
+  const query=(q||'').toLowerCase();
+  const status=document.getElementById('paStatusFilter').value;
+  const filtered=allPartnerApps.filter(a=>{
+    const matchQ=!q||(a.business_name||'').toLowerCase().includes(query)||(a.owner_name||'').toLowerCase().includes(query)||(a.email||'').toLowerCase().includes(query);
+    const matchS=!status||(a.app_status||'pending')===status;
+    return matchQ&&matchS;
+  });
+  renderPartnerApplications(filtered);
+}
+
+// Applications don't have a stable row ID from the sheet, so — same approach
+// already used for Quote Requests in this dashboard — we match on business
+// name + date submitted to find the right row when saving a status change.
+async function setPartnerApplicationStatus(idx,status,reason){
+  const a=allPartnerApps[idx];
+  if(!a)return;
+  try{
+    await postToScript('updatePartnerApplication',{
+      application_id:a.application_id||'',
+      business_name:a.business_name||'',
+      date_submitted:a.date_submitted||'',
+      app_status:status,
+      decline_reason:reason||'',
+      reviewed_by:currentSession?currentSession.full_name:''
+    });
+  }catch(e){
+    console.error('setPartnerApplicationStatus failed:',e);
+  }
+  // Update optimistically either way, so the dashboard reflects the decision
+  // immediately even if the backend doesn't have this action wired up yet.
+  a.app_status=status;
+  if(reason) a.decline_reason=reason;
+  renderPartnerApplications(allPartnerApps);
+  updatePartnerAppsBadge();
+}
+
+function approvePartnerApplication(idx){
+  const a=allPartnerApps[idx];
+  if(!a)return;
+  setPartnerApplicationStatus(idx,'approved');
+  logActivity('Approved Partner Application','',a.business_name||'');
+  showToast(`${a.business_name} approved — now create their login below.`,'success');
+  closeBatchOverlay();
+  showPage('users');
+  setTimeout(()=>{
+    const fullnameEl=document.getElementById('nu-fullname');
+    const roleEl=document.getElementById('nu-role');
+    const usernameEl=document.getElementById('nu-username');
+    if(fullnameEl) fullnameEl.value=a.business_name||'';
+    if(roleEl) roleEl.value='Partner';
+    if(usernameEl && !usernameEl.value){
+      usernameEl.value=(a.business_name||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20);
+    }
+    const addUserCard=document.getElementById('addUserCard');
+    if(addUserCard) addUserCard.scrollIntoView({behavior:'smooth',block:'start'});
+  },300);
+}
+
+function declinePartnerApplication(idx){
+  const a=allPartnerApps[idx];
+  if(!a)return;
+  const reason=window.prompt(`Decline ${a.business_name}'s application? Optionally add a reason (sent to no one automatically — for your own records):`,'');
+  if(reason===null)return; // cancelled
+  setPartnerApplicationStatus(idx,'declined',reason);
+  logActivity('Declined Partner Application','',a.business_name||'');
+  showToast(`${a.business_name} marked as declined.`,'success');
+}
+
+function viewPartnerApplication(idx){
+  const a=allPartnerApps[idx];
+  if(!a)return;
+  const status=a.app_status||'pending';
+  const field=(label,value)=>`
+    <div style="background:var(--gray);border-radius:8px;padding:10px 12px;">
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);margin-bottom:3px;">${label}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy-dark);word-break:break-word;">${value||'-'}</div>
+    </div>`;
+  showBatchOverlay(`
+    <div style="background:#fff;border-radius:12px;padding:26px;max-width:640px;width:92%;max-height:86vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <h3 style="font-size:19px;font-weight:900;color:var(--navy-dark);">${a.business_name||'Partner Application'}</h3>
+        <span class="badge ${status==='approved'?'badge-9':status==='declined'?'badge-0':'badge-1'}">${status.charAt(0).toUpperCase()+status.slice(1)}</span>
+      </div>
+      <p style="font-size:12px;color:var(--text);margin-bottom:16px;">Submitted ${a.date_submitted||'-'}</p>
+
+      <h4 style="font-size:13px;font-weight:800;color:var(--navy-dark);margin-bottom:8px;">Business</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        ${field('Business Name',a.business_name)}
+        ${field('Owner / Principal',a.owner_name)}
+        ${field('CAC Number',a.cac_number)}
+        ${field('Year Commenced',a.year_started)}
+        ${field('Address',a.address)}
+        ${field('City / State',a.city_state)}
+      </div>
+
+      <h4 style="font-size:13px;font-weight:800;color:var(--navy-dark);margin-bottom:8px;">Contact</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        ${field('Business Phone',a.business_phone)}
+        ${field('Owner Phone',a.owner_phone)}
+        ${field('Email',a.email)}
+        ${field('Website / Social',a.website)}
+        ${field('Preferred Contact',a.preferred_contact)}
+      </div>
+
+      <h4 style="font-size:13px;font-weight:800;color:var(--navy-dark);margin-bottom:8px;">Business Profile</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        ${field('Business Type',a.business_type)}
+        ${field('Years in Logistics',a.years_in_logistics)}
+        ${field('Monthly Volume',a.monthly_volume)}
+        ${field('Works With Another Provider?',a.works_with_other_provider)}
+      </div>
+      ${field('Partnership Model(s) Interested In',a.partnership_models)}
+      <div style="margin-top:10px;">${field('Services of Interest',a.services_of_interest)}</div>
+      <div style="margin-top:10px;">${field('Business Needs',a.business_needs)}</div>
+      <div style="margin-top:10px;">${field('Main Shipment Destinations',a.main_destinations)}</div>
+      <div style="margin-top:10px;">${field('Additional Support Requested',a.additional_support)}</div>
+      ${a.improvement_notes?`<div style="margin-top:10px;">${field('What They Want Improved',a.improvement_notes)}</div>`:''}
+      ${a.decline_reason?`<div style="margin-top:10px;">${field('Decline Reason (internal)',a.decline_reason)}</div>`:''}
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap;">
+        <button onclick="closeBatchOverlay()" style="background:var(--gray);color:var(--navy-dark);border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">Close</button>
+        ${status==='pending'?`
+          <button onclick="declinePartnerApplication(${idx})" style="background:#fef2f2;color:#dc2626;border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;">Decline</button>
+          <button onclick="approvePartnerApplication(${idx})" style="background:var(--orange);color:#fff;border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;">Approve &amp; Create Account</button>
+        `:''}
+      </div>
+    </div>`);
+}
+
 
 // ===== END QUOTE REQUESTS =====
 function showToast(msg,type=''){
