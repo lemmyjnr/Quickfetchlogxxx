@@ -1052,6 +1052,11 @@ let CONFIG={
   scriptUrl: 'https://script.google.com/macros/s/AKfycbzShKdT67ekwhIaLLrKyiIKkN4FEx7W1GwHO6z5mpBhGSuYNbl9_1HjYRRkiXc4MhBKPQ/exec'
 };
 
+// Partner Applications page is fully visible in admin — nav item, dashboard
+// stat card, and data all load normally. Each row (and the detail view) has
+// a Delete button to permanently remove a request.
+const PARTNER_APPS_VISIBLE_IN_ADMIN = true;
+
 // ===== USER SESSION / AUTH =====
 let currentSession=null; // {token, username, full_name, role}
 
@@ -2151,9 +2156,9 @@ function showAdmin(){
     const navRequests=document.getElementById('nav-requests');
     if(navRequests) navRequests.style.display=isPartnerRole()?'none':'flex';
     const navPartnerApps=document.getElementById('nav-partner-apps');
-    if(navPartnerApps) navPartnerApps.style.display=isAdminRole()?'flex':'none';
+    if(navPartnerApps) navPartnerApps.style.display=(isAdminRole()&&PARTNER_APPS_VISIBLE_IN_ADMIN)?'flex':'none';
     const statPartnerAppsCard=document.getElementById('statPartnerAppsCard');
-    if(statPartnerAppsCard) statPartnerAppsCard.style.display=isAdminRole()?'block':'none';
+    if(statPartnerAppsCard) statPartnerAppsCard.style.display=(isAdminRole()&&PARTNER_APPS_VISIBLE_IN_ADMIN)?'block':'none';
     const panelTag=document.querySelector('.sidebar-logo .panel-tag');
     if(panelTag) panelTag.textContent=isPartnerRole()?'Partner Panel':'Admin Panel';
     const partnerBanner=document.getElementById('partnerScopeBanner');
@@ -2166,7 +2171,7 @@ function showAdmin(){
   generateTrackingNumber();
   onFreightChange();
   renderStageReference();
-  if(isAdminRole()) loadPartnerApplications();
+  if(isAdminRole()&&PARTNER_APPS_VISIBLE_IN_ADMIN) loadPartnerApplications();
   loadShipments().then(()=>{
     checkAndShowVerifyPage();
   }).catch(()=>{
@@ -2201,7 +2206,7 @@ function showPage(page){
   document.getElementById('pageTitle').textContent=titles[page]||'';
   if(page==='add')generateTrackingNumber();
   if(page==='requests')loadRequests();
-  if(page==='partner-apps')loadPartnerApplications();
+  if(page==='partner-apps'&&PARTNER_APPS_VISIBLE_IN_ADMIN)loadPartnerApplications();
   if(page==='batches')renderBatches();
   if(page==='users'){
     if(isAdminRole()) loadUsers();
@@ -3514,6 +3519,11 @@ function convertToShipment(idx){
 let allPartnerApps=[];
 
 async function loadPartnerApplications(){
+  if(!PARTNER_APPS_VISIBLE_IN_ADMIN){
+    allPartnerApps=[];
+    renderPartnerApplications([]);
+    return;
+  }
   try{
     const res=await fetch(`${CONFIG.scriptUrl}?action=getPartnerApplications`,{redirect:'follow'});
     const data=await res.json();
@@ -3571,6 +3581,7 @@ function renderPartnerApplications(data){
             <button class="action-btn delete" onclick="declinePartnerApplication(${idx})">Decline</button>
           `:''}
           <button class="action-btn edit" onclick="viewPartnerApplication(${idx})">View</button>
+          <button class="action-btn delete" onclick="deletePartnerApplication(${idx})">Delete</button>
         </div>
       </td>
     </tr>`;
@@ -3699,12 +3710,48 @@ function viewPartnerApplication(idx){
 
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap;">
         <button onclick="closeBatchOverlay()" style="background:var(--gray);color:var(--navy-dark);border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">Close</button>
+        <button onclick="deletePartnerApplication(${idx})" style="background:#fef2f2;color:#dc2626;border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;">Delete</button>
         ${status==='pending'?`
           <button onclick="declinePartnerApplication(${idx})" style="background:#fef2f2;color:#dc2626;border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;">Decline</button>
           <button onclick="approvePartnerApplication(${idx})" style="background:var(--orange);color:#fff;border:none;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;">Approve &amp; Create Account</button>
         `:''}
       </div>
     </div>`);
+}
+
+// Permanently removes a partner application request — both from the sheet
+// (via a new 'deletePartnerApplication' action, see Code.gs) and from the
+// dashboard's in-memory list. This is separate from Decline: Decline keeps
+// the record and just marks its status, Delete removes it entirely.
+async function deletePartnerApplication(idx){
+  const a=allPartnerApps[idx];
+  if(!a)return;
+  if(!isAdminRole()){
+    showToast('Only Admin users can delete partner applications.','error');
+    return;
+  }
+  if(!confirm(`Delete the partner application from "${a.business_name||'this business'}"? This cannot be undone.`))return;
+  try{
+    const data=await postToScript('deletePartnerApplication',{
+      application_id:a.application_id||'',
+      business_name:a.business_name||'',
+      date_submitted:a.date_submitted||''
+    });
+    if(data&&data.error){
+      showToast('Failed to delete: '+data.error,'error');
+      return;
+    }
+  }catch(e){
+    console.error('deletePartnerApplication failed:',e);
+    showToast('Failed to delete. Try deleting directly from the Google Sheet.','error');
+    return;
+  }
+  allPartnerApps.splice(idx,1);
+  renderPartnerApplications(allPartnerApps);
+  updatePartnerAppsBadge();
+  logActivity('Deleted Partner Application','',a.business_name||'');
+  showToast(`${a.business_name||'Application'} deleted.`,'success');
+  closeBatchOverlay();
 }
 
 
