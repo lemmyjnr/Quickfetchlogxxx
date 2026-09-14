@@ -607,6 +607,32 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
                 <input type="text" id="f-postcode" placeholder="e.g. 100001, EX14 9HP"/>
               </div>
             </div>
+            <div class="form-section" style="margin-bottom:20px;">
+              <h3>Value, Insurance &amp; Safe Place</h3>
+              <div class="fg">
+                <label>Value of Items</label>
+                <div style="display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:10px;">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-item-currency" value="NGN" checked/> ₦ Naira</label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-item-currency" value="GBP"/> £ Pounds</label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-item-currency" value="EUR"/> € Euros</label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-item-currency" value="USD"/> $ Dollars</label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-item-currency" value="CAD"/> C$ Canadian Dollars</label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-item-currency" value="CNY"/> ¥ Chinese Yuan</label>
+                </div>
+                <input type="number" id="f-item-value" placeholder="Enter value of items" min="0" step="0.01"/>
+              </div>
+              <div class="fg">
+                <label>Additional Insurance</label>
+                <div style="display:flex;gap:18px;">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-insurance" value="Yes"/> Yes</label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="f-insurance" value="No" checked/> No</label>
+                </div>
+              </div>
+              <div class="fg">
+                <label>Safe Place (optional)</label>
+                <input type="text" id="f-safe-place" placeholder="e.g. Behind the flower pot, with the security guard, side porch..."/>
+              </div>
+            </div>
             <div class="form-section">
               <h3>Additional Notes</h3>
               <div class="fg">
@@ -906,6 +932,28 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
       <div class="fg"><label>Postcode</label><input type="text" id="es-delivery_postcode"/></div>
     </div>
     <div class="fg"><label>Notes</label><textarea id="es-notes" rows="2" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:14px;box-sizing:border-box;"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;">
+      <div class="fg" style="grid-column:span 2;">
+        <label>Value of Items Currency</label>
+        <select id="es-item_value_currency">
+          <option value="NGN">₦ Naira</option>
+          <option value="GBP">£ Pounds</option>
+          <option value="EUR">€ Euros</option>
+          <option value="USD">$ Dollars</option>
+          <option value="CAD">C$ Canadian Dollars</option>
+          <option value="CNY">¥ Chinese Yuan</option>
+        </select>
+      </div>
+      <div class="fg" style="grid-column:span 1;"><label>Value Amount</label><input type="number" id="es-item_value_amount" min="0" step="0.01"/></div>
+      <div class="fg" style="grid-column:span 1;">
+        <label>Additional Insurance</label>
+        <select id="es-additional_insurance">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Safe Place</label><input type="text" id="es-safe_place" placeholder="e.g. Behind the flower pot, with the security guard, side porch..."/></div>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeEditShipmentModal()">Cancel</button>
       <button class="modal-save" onclick="saveEditShipment()">Save Changes</button>
@@ -1043,6 +1091,17 @@ function formatDateDisplay(dateVal){
 function getStageName(shipmentOrFreight,statusIndex){
   const stages=getStages(shipmentOrFreight);
   return stages[parseInt(statusIndex)]?stages[parseInt(statusIndex)].label:'Unknown';
+}
+
+// Formats a stored item-value currency code + amount for display, e.g.
+// ('NGN','50000') -> "₦50,000.00". Falls back to just the code + amount if
+// the currency isn't one of the six we support.
+const CURRENCY_SYMBOLS={NGN:'₦',GBP:'£',EUR:'€',USD:'$',CAD:'C$',CNY:'¥'};
+function formatCurrencyValue(currencyCode,amount){
+  const num=parseFloat(amount);
+  const amountStr=isNaN(num)?String(amount):num.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const symbol=CURRENCY_SYMBOLS[currencyCode];
+  return symbol?`${symbol}${amountStr}`:`${amountStr} ${currencyCode||''}`.trim();
 }
 
 
@@ -2438,6 +2497,10 @@ async function addShipment(){
   const status=document.getElementById('f-status').value;
   const notes=document.getElementById('f-notes').value.trim();
   const batchId=document.getElementById('f-batch')?document.getElementById('f-batch').value.trim():'';
+  const itemCurrency=document.querySelector('input[name="f-item-currency"]:checked')?document.querySelector('input[name="f-item-currency"]:checked').value:'NGN';
+  const itemValue=document.getElementById('f-item-value')?document.getElementById('f-item-value').value.trim():'';
+  const insurance=document.querySelector('input[name="f-insurance"]:checked')?document.querySelector('input[name="f-insurance"]:checked').value:'No';
+  const safePlace=document.getElementById('f-safe-place')?document.getElementById('f-safe-place').value.trim():'';
 
   if(!tracking||!name||!freight||!origin||!dest){
     showToast('Please fill all required fields','error');return;
@@ -2490,6 +2553,10 @@ async function addShipment(){
     created_date:today,
     notes:notes,
     batch_id:batchId,
+    item_value_currency:itemCurrency,
+    item_value_amount:itemValue,
+    additional_insurance:insurance,
+    safe_place:safePlace,
     created_by_partner:isPartnerRole()?currentSession.username:'',
     created_by_partner_name:isPartnerRole()?currentSession.full_name:''
   };
@@ -2519,12 +2586,16 @@ async function addShipment(){
 }
 
 function clearAddForm(){
-  ['f-tracking','f-name','f-phone','f-email','f-addr1','f-addr2','f-city','f-county','f-postcode','f-weight','f-notes','f-batch'].forEach(id=>{
+  ['f-tracking','f-name','f-phone','f-email','f-addr1','f-addr2','f-city','f-county','f-postcode','f-weight','f-notes','f-batch','f-item-value','f-safe-place'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
   ['f-freight','f-origin','f-dest','f-route','f-status'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.selectedIndex=0;
   });
+  const defaultCurrency=document.querySelector('input[name="f-item-currency"][value="NGN"]');
+  if(defaultCurrency) defaultCurrency.checked=true;
+  const defaultInsurance=document.querySelector('input[name="f-insurance"][value="No"]');
+  if(defaultInsurance) defaultInsurance.checked=true;
   onFreightChange();
 }
 
@@ -2669,6 +2740,13 @@ function viewShipmentDetails(trackingNum){
       ${field('Delivery Address',fullAddress)}
     </div>
 
+    ${(s.item_value_amount||s.additional_insurance||s.safe_place)?`
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      ${field('Value of Items',s.item_value_amount?formatCurrencyValue(s.item_value_currency,s.item_value_amount):'')}
+      ${field('Additional Insurance',s.additional_insurance||'No')}
+      ${field('Safe Place',s.safe_place)}
+    </div>` : ''}
+
     <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       ${field('Current Update Location',s.update_location)}
       ${field('Last Updated',s.update_time)}
@@ -2764,7 +2842,7 @@ function closeViewModal(){
 }
 
 // ===== EDIT SHIPMENT DETAILS (core info, not tracking status) =====
-const EDIT_SHIPMENT_FIELDS=['full_name','phone','email','weight','origin','destination','delivery_address_line1','delivery_address_line2','delivery_city','delivery_county','delivery_postcode','notes'];
+const EDIT_SHIPMENT_FIELDS=['full_name','phone','email','weight','origin','destination','delivery_address_line1','delivery_address_line2','delivery_city','delivery_county','delivery_postcode','notes','item_value_currency','item_value_amount','additional_insurance','safe_place'];
 
 function openEditShipmentModal(trackingNum){
   const s=allShipments.find(x=>x.tracking_number===trackingNum);
