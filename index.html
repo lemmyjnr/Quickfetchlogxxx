@@ -443,12 +443,15 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
     <div>
       <div class="track-form-wrap">
         <h3>Track Your Shipment</h3>
-        <p>Enter your QuickFetch tracking number below.</p>
+        <p>Enter your QuickFetch tracking number and the phone number used when booking.</p>
         <div class="track-input-row">
           <input type="text" id="tInput" placeholder="e.g. QFL-123456" onkeydown="if(event.key==='Enter')doTrack()"/>
+        </div>
+        <div class="track-input-row">
+          <input type="tel" id="tPhoneInput" placeholder="Phone number used for booking" onkeydown="if(event.key==='Enter')doTrack()"/>
           <button class="track-btn" id="trackBtnEl" onclick="doTrack()">Track</button>
         </div>
-        <div id="track-notfound">Tracking number not found. Check the number or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.</div>
+        <div id="track-notfound">We couldn't verify a shipment with that tracking number and phone number together. Please double-check both, or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.</div>
         <div id="track-result">
           <div class="track-meta">
             <div class="track-meta-grid">
@@ -648,10 +651,29 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
   <div class="route-tabs">
     <button class="r-tab active" onclick="showRoute('ng-uk')">🇳🇬 Nigeria → 🇬🇧 UK</button>
     <button class="r-tab" onclick="showRoute('uk-ng')">🇬🇧 UK → 🇳🇬 Nigeria</button>
-    <button class="r-tab" onclick="showRoute('other')">Other Routes</button>
+    <button class="r-tab" onclick="showRoute('ng-usa')">🇳🇬 Nigeria → 🇺🇸 USA</button>
+    <button class="r-tab" onclick="showRoute('ng-canada')">🇳🇬 Nigeria → 🇨🇦 Canada</button>
+    <button class="r-tab" onclick="showRoute('ng-europe')">🇳🇬 Nigeria → 🇪🇺 Europe</button>
+    <button class="r-tab" onclick="showRoute('ng-china')">🇳🇬 Nigeria → 🇨🇳 China</button>
   </div>
 
   <div class="price-panel active" id="panel-ng-uk">
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦22,000</div><div class="p-unit">per kg</div></div>
+    </div>
+    <div class="price-notes" style="margin-bottom:28px;">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and properly labelled; additional charges may apply if not provided.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
+    </div>
+
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
     <div class="price-cards">
       <div class="price-card">
         <div class="p-type">Non-Contraband Goods</div>
@@ -726,146 +748,149 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <div class="price-note"><div class="dot"></div><span><strong>Doorstep Delivery:</strong> Extra fees apply depending on destination and delivery requirements.</span></div>
     </div>
   </div>
-  <div class="price-panel" id="panel-other">
-    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;line-height:1.6;">Rates below are shown in Naira (₦). Customs clearance and port processing fees may apply on arrival for Express shipments — see notes under each route.</p>
-    <div class="route-tabs" style="margin-bottom:28px;">
-      <button class="r-tab active" onclick="showOtherRoute('usa-canada')">🇺🇸🇨🇦 USA &amp; Canada</button>
-      <button class="r-tab" onclick="showOtherRoute('uk-express')">🇬🇧 UK Express</button>
-      <button class="r-tab" onclick="showOtherRoute('europe')">🇪🇺 Europe</button>
-      <button class="r-tab" onclick="showOtherRoute('china')">🇨🇳 China</button>
+
+  <div class="price-panel" id="panel-ng-usa">
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;line-height:1.6;">Rates below are shown in Naira (₦). Customs clearance and port processing fees may apply on arrival for Express shipments — see notes below.</p>
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
+    </div>
+    <div class="price-notes" style="margin-bottom:28px;">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and labelled in line with FDA and quarantine requirements; additional charges may apply if not provided.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
     </div>
 
-    <!-- USA / CANADA -->
-    <div class="other-route-panel active" id="other-usa-canada">
-      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
-      <div class="price-cards" style="margin-bottom:8px;">
-        <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
-        <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
-        <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
-      </div>
-      <div class="price-notes" style="margin-bottom:28px;">
-        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and labelled in line with FDA and quarantine requirements; additional charges may apply if not provided.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
-      </div>
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card" style="grid-column:1/-1;"><div class="p-type">Non-Contraband Goods</div><div class="p-amount">₦18,500</div><div class="p-unit">per kg</div></div>
+    </div>
+    <div class="price-notes">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Thursdays.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Tuesday.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 10 to 15 working days.</span></div>
+    </div>
+  </div>
 
-      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
-      <div class="price-cards" style="margin-bottom:8px;">
-        <div class="price-card" style="grid-column:1/-1;"><div class="p-type">Non-Contraband Goods</div><div class="p-amount">₦18,500</div><div class="p-unit">per kg</div></div>
-      </div>
-      <div class="price-notes">
-        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Thursdays.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Tuesday.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 10 to 15 working days.</span></div>
-      </div>
+  <div class="price-panel" id="panel-ng-canada">
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;line-height:1.6;">Rates below are shown in Naira (₦). Customs clearance and port processing fees may apply on arrival for Express shipments — see notes below.</p>
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
+    </div>
+    <div class="price-notes" style="margin-bottom:28px;">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and labelled in line with CFIA and quarantine requirements; additional charges may apply if not provided.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
     </div>
 
-    <!-- UK EXPRESS -->
-    <div class="other-route-panel" id="other-uk-express" style="display:none;">
-      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
-      <div class="price-cards" style="margin-bottom:8px;">
-        <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
-        <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦25,000</div><div class="p-unit">per kg</div></div>
-        <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦22,000</div><div class="p-unit">per kg</div></div>
-      </div>
-      <div class="price-notes">
-        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and labelled in line with UK customs policy on imported food items.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
-      </div>
-      <p style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:16px;">Looking for our standard UK &rarr; Nigeria bulk cargo rate? See the <a href="#pricing" onclick="showRoute('uk-ng')" style="color:var(--orange);font-weight:700;">UK &rarr; Nigeria tab</a> above.</p>
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card" style="grid-column:1/-1;"><div class="p-type">Non-Contraband Goods</div><div class="p-amount">₦18,500</div><div class="p-unit">per kg</div></div>
+    </div>
+    <div class="price-notes">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Thursdays.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Tuesday.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 10 to 15 working days.</span></div>
+    </div>
+  </div>
+
+  <div class="price-panel" id="panel-ng-europe">
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;line-height:1.6;">Rates below are shown in Naira (₦). Customs clearance and port processing fees may apply on arrival for Express shipments — see notes below.</p>
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
+      <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦23,000</div><div class="p-unit">per kg</div></div>
+    </div>
+    <div class="price-notes" style="margin-bottom:28px;">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
     </div>
 
-    <!-- EUROPE -->
-    <div class="other-route-panel" id="other-europe" style="display:none;">
-      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Express</h4>
-      <div class="price-cards" style="margin-bottom:8px;">
-        <div class="price-card"><div class="p-type">0 &ndash; 10kg</div><div class="p-amount">₦30,000</div><div class="p-unit">per kg</div></div>
-        <div class="price-card"><div class="p-type">10 &ndash; 30kg</div><div class="p-amount">₦27,000</div><div class="p-unit">per kg</div></div>
-        <div class="price-card"><div class="p-type">30kg and above</div><div class="p-amount">₦23,000</div><div class="p-unit">per kg</div></div>
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo &mdash; by Zone</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card">
+        <div class="p-type">Zone 1</div>
+        <div class="p-amount">₦16,500</div><div class="p-unit">per kg</div>
+        <div class="p-desc">Croatia, Czech Rep., Estonia, Belgium, Denmark, France, Germany, Hungary, Lithuania, Romania, Luxembourg, Netherlands, Slovakia, Slovenia</div>
       </div>
-      <div class="price-notes" style="margin-bottom:28px;">
-        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
+      <div class="price-card">
+        <div class="p-type">Zone 2</div>
+        <div class="p-amount">₦18,000</div><div class="p-unit">per kg</div>
+        <div class="p-desc">Austria, Greece, Italy, Latvia, Poland, Portugal, Spain, Sweden, Switzerland</div>
       </div>
-
-      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo &mdash; by Zone</h4>
-      <div class="price-cards" style="margin-bottom:8px;">
-        <div class="price-card">
-          <div class="p-type">Zone 1</div>
-          <div class="p-amount">₦16,500</div><div class="p-unit">per kg</div>
-          <div class="p-desc">Croatia, Czech Rep., Estonia, Belgium, Denmark, France, Germany, Hungary, Lithuania, Romania, Luxembourg, Netherlands, Slovakia, Slovenia</div>
-        </div>
-        <div class="price-card">
-          <div class="p-type">Zone 2</div>
-          <div class="p-amount">₦18,000</div><div class="p-unit">per kg</div>
-          <div class="p-desc">Austria, Greece, Italy, Latvia, Poland, Portugal, Spain, Sweden, Switzerland</div>
-        </div>
-        <div class="price-card">
-          <div class="p-type">Zone 3</div>
-          <div class="p-amount">₦20,000</div><div class="p-unit">per kg</div>
-          <div class="p-desc">Finland, Norway</div>
-        </div>
-      </div>
-      <div class="price-notes">
-        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 15kg per booking.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Saturdays.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Thursday.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 7 to 10 working days.</span></div>
+      <div class="price-card">
+        <div class="p-type">Zone 3</div>
+        <div class="p-amount">₦20,000</div><div class="p-unit">per kg</div>
+        <div class="p-desc">Finland, Norway</div>
       </div>
     </div>
+    <div class="price-notes">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 15kg per booking.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Saturdays.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Collection deadline:</strong> Must arrive at our regional sorting hub before 4pm every Thursday.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 7 to 10 working days.</span></div>
+    </div>
+  </div>
 
-    <!-- CHINA -->
-    <div class="other-route-panel" id="other-china" style="display:none;">
-      <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
-      <div class="price-cards" style="margin-bottom:8px;">
-        <div class="price-card" style="grid-column:1/-1;">
-          <div class="p-type">Non-Contraband Goods</div>
-          <div class="p-amount">$13.5</div><div class="p-unit">per kg</div>
-          <div style="margin-top:16px;">
-            <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:10px;">Accepted Items</p>
-            <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Clothing &amp; personal items</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Electronics, phones and gadgets</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Business supplies</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Food &amp; household items</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Heavy industrial goods &amp; equipment</div>
-            </div>
-            <p style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;">Bags, containers, appliances and vehicles are charged by area and volume.</p>
+  <div class="price-panel" id="panel-ng-china">
+    <h4 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:14px;">Air Cargo</h4>
+    <div class="price-cards" style="margin-bottom:8px;">
+      <div class="price-card" style="grid-column:1/-1;">
+        <div class="p-type">Non-Contraband Goods</div>
+        <div class="p-amount">$13.5</div><div class="p-unit">per kg</div>
+        <div style="margin-top:16px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:10px;">Accepted Items</p>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Clothing &amp; personal items</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Electronics, phones and gadgets</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Business supplies</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Food &amp; household items</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--orange);">✓</span>Heavy industrial goods &amp; equipment</div>
           </div>
+          <p style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;">Bags, containers, appliances and vehicles are charged by area and volume.</p>
         </div>
       </div>
-      <div class="price-notes">
-        <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every weekday.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 3 to 5 working days.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Collection Point:</strong> Guangzhou collection hub.</span></div>
-        <div class="price-note"><div class="dot"></div><span><strong>Doorstep Delivery:</strong> Available nationwide at an additional cost depending on weight, destination and delivery requirements.</span></div>
-      </div>
     </div>
+    <div class="price-notes">
+      <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> 10kg minimum.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> No additional payments required.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping and safe handling are free.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every weekday.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 3 to 5 working days.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Collection Point:</strong> Guangzhou collection hub.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Doorstep Delivery:</strong> Available nationwide at an additional cost depending on weight, destination and delivery requirements.</span></div>
+    </div>
+  </div>
 
-    <div style="text-align:center;margin-top:32px;">
-      <a href="#quote" class="btn-orange">Request a Custom Quote</a>
-    </div>
+  <div style="text-align:center;margin-top:32px;">
+    <a href="#quote" class="btn-orange">Request a Custom Quote</a>
   </div>
 </section>
 
@@ -1179,10 +1204,16 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <div class="ci"><span class="ico">📞</span><span>+2348101732427<br>+2348145883714</span></div>
     </div>
     <div class="contact-card">
+      <span class="cc-label">South West Regional Hub</span>
+      <h3>🇳🇬 Nigeria</h3>
+      <div class="ci"><span class="ico">📍</span><span>[[NEED FULL ADDRESS]] Filling Station, Iyana Ipaja Roundabout, Ipaja Road, Iyana Ipaja, Lagos State, Nigeria</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003557<br>+2348101732427</span></div>
+    </div>
+    <div class="contact-card">
       <span class="cc-label">South East Hub</span>
       <h3>🇳🇬 Nigeria</h3>
       <div class="ci"><span class="ico">📍</span><span>164 Ehi Road, by York Street, Aba Crown One Plaza, Aba</span></div>
-      <div class="ci"><span class="ico">📞</span><span>+2347047003557</span></div>
+      <div class="ci"><span class="ico">📞</span><span>+2347047003558<br>+2348101732427</span></div>
     </div>
     <div class="contact-card">
       <span class="cc-label">UK Airfreight Hub</span>
@@ -1729,14 +1760,6 @@ function showRoute(id){
   document.getElementById('panel-'+id).classList.add('active');
   if(typeof event!=='undefined'&&event.target) event.target.classList.add('active');
 }
-function showOtherRoute(id){
-  const panel=document.getElementById('panel-other');
-  panel.querySelectorAll('.other-route-panel').forEach(p=>{p.style.display='none';p.classList.remove('active');});
-  panel.querySelectorAll('.route-tabs .r-tab').forEach(t=>t.classList.remove('active'));
-  const target=document.getElementById('other-'+id);
-  if(target){target.style.display='block';target.classList.add('active');}
-  if(typeof event!=='undefined'&&event.target) event.target.classList.add('active');
-}
 
 function showSeaRoute(id){
   document.querySelectorAll('#sea-pricing .price-panel').forEach(p=>p.classList.remove('active'));
@@ -1891,19 +1914,28 @@ function setTrack(v){document.getElementById('tInput').value=v;doTrack();}
 
 async function doTrack(){
   const v=document.getElementById('tInput').value.trim().toUpperCase();
-  if(!v){return;}
+  const phone=document.getElementById('tPhoneInput').value.trim();
   const rEl=document.getElementById('track-result');
   const nEl=document.getElementById('track-notfound');
   const btn=document.getElementById('trackBtnEl');
   rEl.style.display='none';nEl.style.display='none';
+  if(!v||!phone){
+    nEl.textContent='Please enter both your tracking number and the phone number used for booking.';
+    nEl.style.display='block';
+    return;
+  }
   btn.textContent='Searching...';btn.disabled=true;
   try{
-    const res=await fetch(`${SCRIPT_URL}?action=getShipments`,{redirect:'follow'});
+    const res=await fetch(SCRIPT_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'trackShipment',tracking_number:v,phone:phone})});
     const data=await res.json();
     btn.textContent='Track';btn.disabled=false;
-    if(!data||data.length===0){nEl.style.display='block';return;}
-    const s=data.find(row=>row.tracking_number&&row.tracking_number.toUpperCase()===v);
-    if(!s){nEl.style.display='block';return;}
+    if(!data||!data.success||!data.shipment){
+      nEl.textContent="We couldn't verify a shipment with that tracking number and phone number together. Please double-check both, or contact us on WhatsApp.";
+      nEl.innerHTML='We couldn\'t verify a shipment with that tracking number and phone number together. Please double-check both, or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.';
+      nEl.style.display='block';
+      return;
+    }
+    const s=data.shipment;
     const stages=getStages(s);
     const maxStage=stages.length-1;
     const step=Math.min(parseInt(s.status)||0,maxStage);
@@ -2164,6 +2196,7 @@ async function submitPartnerForm(){
   const declared=document.getElementById('p-declare').checked;
   if(!declared){document.getElementById('partner-consent-warning').style.display='block';return;}
 
+  const applicationId='PA-'+Date.now().toString(36).toUpperCase();
   const bizName=document.getElementById('p-biz-name').value.trim();
   const owner=document.getElementById('p-owner').value.trim();
   const cac=document.getElementById('p-cac').value.trim();
@@ -2200,6 +2233,7 @@ async function submitPartnerForm(){
   const today=new Date().toLocaleDateString('en-GB');
 
   const sheetData={
+    application_id:applicationId,app_status:'pending',
     business_name:bizName,owner_name:owner,cac_number:cac,year_started:yearStarted,
     address:address,city_state:cityState,business_phone:bizPhone,owner_phone:ownerPhone,
     email:email,website:web,preferred_contact:comm,business_type:bizType,
@@ -2209,26 +2243,12 @@ async function submitPartnerForm(){
     date_submitted:today
   };
 
-  const formspreeData={
-    business_name:bizName,owner_name:owner,cac_number:cac,year_started:yearStarted,
-    address:`${address}, ${cityState}`,business_phone:bizPhone,owner_phone:ownerPhone,
-    email:email,website:web,preferred_contact:comm,business_type:bizType,
-    years_in_logistics:yearsLogistics,monthly_volume:volume,partnership_models:models,
-    services_of_interest:services,business_needs:needs,main_destinations:destinations,
-    works_with_other_provider:otherProvider,improvement_notes:improve,additional_support:support,
-    _replyto:email,
-    _subject:`New Partner Application from ${bizName} - QuickFetch Logistics`
-  };
-
   try{
-    const [sheetRes,formRes]=await Promise.all([
-      fetch(SCRIPT_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'addPartnerApplication',...sheetData})}),
-      fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(formspreeData)})
-    ]);
+    const sheetRes=await fetch(SCRIPT_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'addPartnerApplication',...sheetData})});
 
     btn.textContent='Submit Application';btn.disabled=false;
 
-    if(sheetRes.ok||formRes.ok){
+    if(sheetRes.ok){
       successEl.style.display='block';
       ['p-biz-name','p-owner','p-cac','p-address','p-city-state','p-biz-phone','p-owner-phone','p-email','p-web','p-improve'].forEach(id=>{
         const el=document.getElementById(id);if(el)el.value='';

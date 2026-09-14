@@ -363,7 +363,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
         <span class="nav-icon">⚙️</span> Settings
       </a>
       <a onclick="showPage('users')" id="nav-users">
-        <span class="nav-icon">👤</span> Users & Activity
+        <span class="nav-icon">👤</span> Users
       </a>
     </nav>
     <div class="sidebar-bottom">
@@ -786,16 +786,6 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
             </div>
             <button class="submit-btn" onclick="addUser()">Create User</button>
           </div>
-          <div class="settings-card" style="grid-column:1/-1;">
-            <h3>Activity Log</h3>
-            <p>Every add / update / delete on this dashboard, watermarked with who did it and when.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Tracking #</th><th>Details</th></tr></thead>
-                <tbody id="activityTableBody"></tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -1113,24 +1103,11 @@ async function postToScript(action,payload){
   return data;
 }
 
-// Records an action in the Activity Log without blocking the action itself -
-// fire-and-forget so a logging hiccup never stops a real shipment update.
+// Activity logging has been removed — this is now a no-op kept in place so
+// the many existing call sites throughout the dashboard don't need to be
+// touched one by one.
 function logActivity(actionLabel,trackingNumber,details){
-  if(!currentSession) return;
-  fetch(CONFIG.scriptUrl,{
-    method:'POST',redirect:'follow',
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({
-      action:'logActivity',
-      username:currentSession.username,
-      full_name:currentSession.full_name,
-      role:currentSession.role,
-      session_token:currentSession.token,
-      activity_action:actionLabel,
-      tracking_number:trackingNumber||'',
-      details:details||''
-    })
-  }).catch(e=>console.error('Activity log failed:',e));
+  return;
 }
 
 // Checks with the server that this session hasn't been force-logged-out by an
@@ -2220,7 +2197,7 @@ function showPage(page){
   const navKey = (page==='batch-detail') ? 'batches' : (page==='verify' ? '' : page);
   const navEl = document.getElementById('nav-'+navKey);
   if(navEl) navEl.classList.add('active');
-  const titles={dashboard:'Dashboard',shipments:'All Shipments',add:'Add New Shipment',batches:'Shipment Batches','batch-detail':'Batch Details',requests:'Quote Requests',settings:'Settings',users:'Users & Activity',verify:'Shipment Verification'};
+  const titles={dashboard:'Dashboard',shipments:'All Shipments',add:'Add New Shipment',batches:'Shipment Batches','batch-detail':'Batch Details',requests:'Quote Requests',settings:'Settings',users:'Users',verify:'Shipment Verification'};
   document.getElementById('pageTitle').textContent=titles[page]||'';
   if(page==='add')generateTrackingNumber();
   if(page==='requests')loadRequests();
@@ -2228,7 +2205,6 @@ function showPage(page){
   if(page==='batches')renderBatches();
   if(page==='users'){
     if(isAdminRole()) loadUsers();
-    loadActivityLog();
   }
 }
 
@@ -2461,6 +2437,17 @@ async function addShipment(){
   if(!tracking||!name||!freight||!origin||!dest){
     showToast('Please fill all required fields','error');return;
   }
+
+  // ===== TEMPORARY / EXPERIMENTAL — added 14 Sep 2026 at client's request =====
+  // Partners are intentionally blocked from creating shipments for now while
+  // this is tested pre-launch. Nothing is saved; the partner sees a clear
+  // error, not a fake success. To restore normal partner shipment creation,
+  // delete this whole block (between the === markers).
+  if(isPartnerRole()){
+    showToast('Unable to create shipment right now. Please try again later.','error');
+    return;
+  }
+  // ===== END TEMPORARY / EXPERIMENTAL BLOCK =====
 
   const exists=allShipments.find(s=>s.tracking_number===tracking);
   if(exists){showToast('Tracking number already exists','error');return;}
@@ -3399,33 +3386,6 @@ async function forceLogoutUser(username){
   } catch(e){
     showToast('Network error. Check your connection and try again.','error');
   }
-}
-
-async function loadActivityLog(){
-  try{
-    const res=await fetch(`${CONFIG.scriptUrl}?action=getActivityLog&limit=100`,{redirect:'follow'});
-    const data=await res.json();
-    renderActivityTable(Array.isArray(data.logs)?data.logs:[]);
-  } catch(e){
-    console.error('loadActivityLog failed:',e);
-  }
-}
-
-function renderActivityTable(logs){
-  const tbody=document.getElementById('activityTableBody');
-  if(!logs||logs.length===0){
-    tbody.innerHTML=`<tr><td colspan="5" class="empty-state">No activity recorded yet.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML=logs.slice().reverse().map(l=>`
-    <tr>
-      <td style="white-space:nowrap;">${l.timestamp||''}</td>
-      <td>${l.full_name||l.username||''}</td>
-      <td>${l.activity_action||l.action||''}</td>
-      <td style="font-family:monospace;">${l.tracking_number||''}</td>
-      <td>${l.details||''}</td>
-    </tr>
-  `).join('');
 }
 
 
