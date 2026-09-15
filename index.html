@@ -602,7 +602,7 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <span class="sec-tag">Shop & Ship</span>
       <h2 class="sec-h2">Shop Anywhere.<br><span>We Deliver</span><br>To Your Door.</h2>
       <p class="sec-p">Shop from any online store worldwide and have your purchases delivered to the Quickfetch Logistics hub nearest to you. We will receive, process, and ship your items directly to your destination.</p>
-      <div class="hub-box"><div class="hub-lbl">🇬🇧 UK Hub Address</div><div class="hub-addr">H W Pryce and Sons Haulage Yard, Springhill, Wellington TF1 3NA<br>Tel: +447405379690</div></div>
+      <div class="hub-box"><div class="hub-lbl">🇬🇧 UK Hub Address</div><div class="hub-addr">69 Lammas Street, Carmarthen, Wales, SA31 3AZ<br>Tel: +447405379690</div></div>
       <div class="hub-box"><div class="hub-lbl">🇺🇸 USA Hub Address</div><div class="hub-addr">Yellow Rose Way, Aubrey, Texas 76227<br>Tel: +19404883628</div></div>
       <div class="hub-box"><div class="hub-lbl">🇳🇬 Nigeria Hub Address</div><div class="hub-addr">Shop 45, Stakeholder Car Park, Murtala Mohammed International Airport, Ikeja, Lagos<br>Tel: +2348101732427</div></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;">
@@ -682,10 +682,10 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
         <div class="p-desc">Standard commercial goods, clothing, electronics, personal items and general cargo.</div>
       </div>
       <div class="price-card">
-        <div class="p-type">Fish & Protein</div>
+        <div class="p-type">Protein, Animal Products & Red Oil</div>
         <div class="p-amount">₦8,500</div>
         <div class="p-unit">per kg</div>
-        <div class="p-desc">Includes dried fish, stockfish, smoked proteins and other food items in this category.</div>
+        <div class="p-desc">Includes dried fish, stockfish, smoked proteins, red oil and other food items in this category.</div>
       </div>
       <div class="price-card">
         <div class="p-type">Special Clearance Items</div>
@@ -743,7 +743,7 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <div class="price-note"><div class="dot"></div><span><strong>Chargeable Weight:</strong> Actual Shipment Weight + 1kg Pallet Allowance per Consignment.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Packaging and clearance are included in the rates above.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave on Wednesdays.</span></div>
-      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> 5 to 7 working days.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> 5 to 10 working days.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Collections:</strong> Items are to be collected at our Lagos hub.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Doorstep Delivery:</strong> Extra fees apply depending on destination and delivery requirements.</span></div>
     </div>
@@ -824,6 +824,7 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
     <div class="price-notes" style="margin-bottom:28px;">
       <div class="price-note"><div class="dot"></div><span><strong>Minimum Shipment:</strong> No minimum.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Customs Clearance:</strong> Additional payments for customs clearance and port processing may apply on arrival.</span></div>
+      <div class="price-note"><div class="dot"></div><span><strong>Food items</strong> must be in transparent ziplocks and properly labelled in line with EU customs policy on imported food items; additional charges may apply if not provided.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>No hidden charges.</strong> Boxes, packaging, wrapping, pallet allowance and safe handling are free.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Departure:</strong> Shipments leave every working day.</span></div>
       <div class="price-note"><div class="dot"></div><span><strong>Delivery Aim:</strong> Home delivery in 2 to 5 working days.</span></div>
@@ -1149,6 +1150,32 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
       <div class="fg"><label>Postcode *</label><input type="text" id="q-postcode" placeholder="e.g. 100001, EX14 9HP"/></div>
 
       <div class="fg"><label>Message</label><textarea id="q-message" placeholder="Tell us about your cargo, any special requirements or questions..."></textarea></div>
+
+      <!-- Value, Insurance & Safe Place -->
+      <div style="margin:20px 0 6px;">
+        <h4 style="font-size:14px;font-weight:800;color:var(--navy-dark);margin-bottom:4px;">Value, Insurance &amp; Safe Place</h4>
+        <p style="font-size:12px;color:var(--text);margin-bottom:14px;">Helps us assess risk and arrange the right protection for your shipment.</p>
+      </div>
+      <div class="fg">
+        <label>Value of Items</label>
+        <div style="display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:8px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-item-currency" value="NGN" checked/> ₦ Naira</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-item-currency" value="GBP"/> £ Pounds</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-item-currency" value="EUR"/> € Euros</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-item-currency" value="USD"/> $ Dollars</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-item-currency" value="CAD"/> C$ Canadian Dollars</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-item-currency" value="CNY"/> ¥ Chinese Yuan</label>
+        </div>
+        <input type="number" id="q-item-value" placeholder="Enter value of items" min="0" step="0.01"/>
+      </div>
+      <div class="fg">
+        <label>Additional Insurance</label>
+        <div style="display:flex;gap:18px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-insurance" value="Yes"/> Yes</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy-dark);cursor:pointer;"><input type="radio" name="q-insurance" value="No" checked/> No</label>
+        </div>
+      </div>
+      <div class="fg"><label>Safe Place (optional)</label><input type="text" id="q-safe-place" placeholder="e.g. Behind the flower pot, with the security guard, side porch..."/></div>
 
       <!-- Insurance & T&C links -->
       <div style="background:#fff8f3;border:1px solid #f4d0b3;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--navy-dark);line-height:1.7;">
@@ -2132,6 +2159,10 @@ async function submitQuote(){
   const county=document.getElementById('q-county').value.trim();
   const postcode=document.getElementById('q-postcode').value.trim();
   const message=document.getElementById('q-message').value.trim();
+  const itemCurrency=document.querySelector('input[name="q-item-currency"]:checked')?document.querySelector('input[name="q-item-currency"]:checked').value:'NGN';
+  const itemValue=document.getElementById('q-item-value').value.trim();
+  const insurance=document.querySelector('input[name="q-insurance"]:checked')?document.querySelector('input[name="q-insurance"]:checked').value:'No';
+  const safePlace=document.getElementById('q-safe-place').value.trim();
   const btn=document.getElementById('quoteBtnEl');
   const successEl=document.getElementById('quote-success');
   const errorEl=document.getElementById('quote-error');
@@ -2157,7 +2188,9 @@ async function submitQuote(){
     weight:weight,
     delivery_address_line1:addr1,delivery_address_line2:addr2,
     delivery_city:city,delivery_county:county,delivery_postcode:postcode,
-    message:message,date_submitted:today
+    message:message,date_submitted:today,
+    item_value_currency:itemCurrency,item_value_amount:itemValue,
+    additional_insurance:insurance,safe_place:safePlace
   };
 
   const formspreeData={
@@ -2166,6 +2199,9 @@ async function submitQuote(){
     weight:weight,
     delivery_address:deliveryAddress,
     message:message,
+    value_of_items:itemValue?`${itemValue} ${itemCurrency}`:'Not provided',
+    additional_insurance:insurance,
+    safe_place:safePlace||'Not provided',
     _replyto:email,
     _subject:`New Quote Request from ${name} - QuickFetch Logistics`
   };
@@ -2180,12 +2216,16 @@ async function submitQuote(){
 
     if(sheetRes.ok||formRes.ok){
       successEl.style.display='block';
-      ['q-name','q-email','q-phone','q-weight','q-addr1','q-addr2','q-city','q-county','q-postcode','q-message'].forEach(id=>{
+      ['q-name','q-email','q-phone','q-weight','q-addr1','q-addr2','q-city','q-county','q-postcode','q-message','q-item-value','q-safe-place'].forEach(id=>{
         const el=document.getElementById(id);if(el)el.value='';
       });
       ['q-freight','q-origin','q-dest','q-inter-origin','q-inter-dest','q-intra-state'].forEach(id=>{
         const el=document.getElementById(id);if(el)el.selectedIndex=0;
       });
+      const defaultCurrency=document.querySelector('input[name="q-item-currency"][value="NGN"]');
+      if(defaultCurrency) defaultCurrency.checked=true;
+      const defaultInsurance=document.querySelector('input[name="q-insurance"][value="No"]');
+      if(defaultInsurance) defaultInsurance.checked=true;
       selectQuoteCategory('international');
     } else {
       errorEl.textContent='Something went wrong. Please try again or contact us on WhatsApp.';

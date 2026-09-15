@@ -3577,6 +3577,17 @@ function convertToShipment(idx){
     document.getElementById('f-postcode').value=r.delivery_postcode||'';
     document.getElementById('f-weight').value=r.weight||'';
     document.getElementById('f-notes').value=r.message||'';
+    // Carry over value/insurance/safe place from the customer's quote request, if provided
+    if(r.item_value_currency){
+      const curRadio=document.querySelector(`input[name="f-item-currency"][value="${r.item_value_currency}"]`);
+      if(curRadio) curRadio.checked=true;
+    }
+    document.getElementById('f-item-value').value=r.item_value_amount||'';
+    if(r.additional_insurance){
+      const insRadio=document.querySelector(`input[name="f-insurance"][value="${r.additional_insurance}"]`);
+      if(insRadio) insRadio.checked=true;
+    }
+    document.getElementById('f-safe-place').value=r.safe_place||'';
     // Set freight type, then rebuild origin/destination options to match
     // (Domestic Delivery uses Nigerian states instead of countries)
     const freightSel=document.getElementById('f-freight');
