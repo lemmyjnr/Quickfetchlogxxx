@@ -396,7 +396,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
           <div class="stat-card navy"><span class="s-num" id="stat-transit">0</span><div class="s-lbl">In Transit</div></div>
           <div class="stat-card green"><span class="s-num" id="stat-delivered">0</span><div class="s-lbl">Delivered</div></div>
           <div class="stat-card amber"><span class="s-num" id="stat-pending">0</span><div class="s-lbl">Pending / At Hub</div></div>
-          <div class="stat-card" style="border-top-color:#7c3aed;"><span class="s-num" id="stat-new-requests" style="color:#7c3aed;">0</span><div class="s-lbl">New Requests</div></div>
+          <div class="stat-card" id="statNewRequestsCard" style="border-top-color:#7c3aed;"><span class="s-num" id="stat-new-requests" style="color:#7c3aed;">0</span><div class="s-lbl">New Requests</div></div>
           <div class="stat-card" id="statPartnerAppsCard" style="border-top-color:var(--orange);cursor:pointer;" onclick="showPage('partner-apps')"><span class="s-num" id="stat-partner-apps" style="color:var(--orange);">0</span><div class="s-lbl">Pending Partner Applications</div></div>
         </div>
         <div class="card">
@@ -781,7 +781,7 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
             <p>Everyone who can log into this dashboard, and their permission level.</p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
                 <tbody id="usersTableBody"></tbody>
               </table>
             </div>
@@ -796,6 +796,10 @@ tbody td{padding:13px 16px;font-size:13px;color:var(--text-dark);}
             <div class="fg">
               <label>Full Name</label>
               <input type="text" id="nu-fullname" placeholder="e.g. Jane Okafor, or a partner's business name"/>
+            </div>
+            <div class="fg">
+              <label>Email Address</label>
+              <input type="email" id="nu-email" placeholder="Used to send them shipment/delivery notifications"/>
             </div>
             <div class="fg">
               <label>Temporary Password</label>
@@ -2214,6 +2218,8 @@ function showAdmin(){
     document.getElementById('nav-settings').style.display=isAdminRole()?'flex':'none';
     const navRequests=document.getElementById('nav-requests');
     if(navRequests) navRequests.style.display=isPartnerRole()?'none':'flex';
+    const statNewRequestsCard=document.getElementById('statNewRequestsCard');
+    if(statNewRequestsCard) statNewRequestsCard.style.display=isPartnerRole()?'none':'block';
     const navPartnerApps=document.getElementById('nav-partner-apps');
     if(navPartnerApps) navPartnerApps.style.display=(isAdminRole()&&PARTNER_APPS_VISIBLE_IN_ADMIN)?'flex':'none';
     const statPartnerAppsCard=document.getElementById('statPartnerAppsCard');
@@ -2505,17 +2511,6 @@ async function addShipment(){
   if(!tracking||!name||!freight||!origin||!dest){
     showToast('Please fill all required fields','error');return;
   }
-
-  // ===== TEMPORARY / EXPERIMENTAL — added 14 Sep 2026 at client's request =====
-  // Partners are intentionally blocked from creating shipments for now while
-  // this is tested pre-launch. Nothing is saved; the partner sees a clear
-  // error, not a fake success. To restore normal partner shipment creation,
-  // delete this whole block (between the === markers).
-  if(isPartnerRole()){
-    showToast('Unable to create shipment right now. Please try again later.','error');
-    return;
-  }
-  // ===== END TEMPORARY / EXPERIMENTAL BLOCK =====
 
   const exists=allShipments.find(s=>s.tracking_number===tracking);
   if(exists){showToast('Tracking number already exists','error');return;}
@@ -3394,13 +3389,17 @@ async function loadUsers(){
 function renderUsersTable(users){
   const tbody=document.getElementById('usersTableBody');
   if(!users||users.length===0){
-    tbody.innerHTML=`<tr><td colspan="5" class="empty-state">No users yet.</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="6" class="empty-state">No users yet.</td></tr>`;
     return;
   }
   tbody.innerHTML=users.map(u=>`
     <tr>
       <td>${u.username}</td>
       <td>${u.full_name||''}</td>
+      <td style="font-size:12px;">
+        ${u.email?u.email:'<span style="color:var(--text);opacity:0.6;">Not set</span>'}
+        <button class="action-btn edit" style="margin-left:6px;padding:2px 8px;font-size:11px;" onclick="editUserEmail('${u.username}','${(u.email||'').replace(/'/g,"\\'")}')">${u.email?'Edit':'Set'}</button>
+      </td>
       <td>${u.role||'Staff'}</td>
       <td>${u.active===false?'<span style="color:var(--danger);">Deactivated</span>':(u.online?'<span style="color:#16a34a;">● Online</span>':'Offline')}</td>
       <td style="white-space:nowrap;">
@@ -3411,23 +3410,53 @@ function renderUsersTable(users){
   `).join('');
 }
 
+// Lets an Admin set or correct a user's notification email after the account
+// already exists (covers accounts created before this field was added, or
+// simple typo fixes).
+async function editUserEmail(username,currentEmail){
+  if(!isAdminRole()){showToast('Only Admin users can do that','error');return;}
+  const newEmail=window.prompt(`Notification email for ${username}:`,currentEmail||'');
+  if(newEmail===null)return; // cancelled
+  const trimmed=newEmail.trim();
+  if(trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)){
+    showToast('That email address doesn\'t look valid','error');
+    return;
+  }
+  try{
+    const data=await postToScript('updateUserEmail',{target_username:username,email:trimmed});
+    if(data && data.success){
+      showToast(`Email updated for ${username}`,'success');
+      loadUsers();
+    } else {
+      showToast((data&&data.error)||'Could not update email','error');
+    }
+  }catch(e){
+    showToast('Network error. Check your connection and try again.','error');
+  }
+}
+
 async function addUser(){
   if(!isAdminRole()){showToast('Only Admin users can add users','error');return;}
   const username=document.getElementById('nu-username').value.trim();
   const full_name=document.getElementById('nu-fullname').value.trim();
+  const email=document.getElementById('nu-email').value.trim();
   const password=document.getElementById('nu-password').value;
   const role=document.getElementById('nu-role').value;
   if(!username||!full_name||!password){
     showToast('Please fill in username, full name and a temporary password','error');
     return;
   }
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showToast('That email address doesn\'t look valid','error');
+    return;
+  }
   try{
     const password_hash=await sha256Hex(password);
-    const data=await postToScript('addUser',{new_username:username,full_name,password_hash,role});
+    const data=await postToScript('addUser',{new_username:username,full_name,email,password_hash,role});
     if(data && data.success){
       showToast(`User ${username} created`,'success');
       logActivity('Added User','',`Created user ${username} (${role})`);
-      ['nu-username','nu-fullname','nu-password'].forEach(id=>document.getElementById(id).value='');
+      ['nu-username','nu-fullname','nu-email','nu-password'].forEach(id=>document.getElementById(id).value='');
       loadUsers();
     } else {
       showToast((data&&data.error)||'Could not create user','error');
