@@ -443,15 +443,15 @@ footer{background:var(--navy-dark);padding:56px 5% 24px;border-top:3px solid var
     <div>
       <div class="track-form-wrap">
         <h3>Track Your Shipment</h3>
-        <p>Enter your QuickFetch tracking number and the phone number used when booking.</p>
+        <p>Enter your QuickFetch tracking number and the phone number or postcode used when booking.</p>
         <div class="track-input-row">
           <input type="text" id="tInput" placeholder="e.g. QFL-123456" onkeydown="if(event.key==='Enter')doTrack()"/>
         </div>
         <div class="track-input-row">
-          <input type="tel" id="tPhoneInput" placeholder="Phone number used for booking" onkeydown="if(event.key==='Enter')doTrack()"/>
+          <input type="text" id="tPhoneInput" placeholder="Phone number or postcode used for booking" onkeydown="if(event.key==='Enter')doTrack()"/>
           <button class="track-btn" id="trackBtnEl" onclick="doTrack()">Track</button>
         </div>
-        <div id="track-notfound">We couldn't verify a shipment with that tracking number and phone number together. Please double-check both, or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.</div>
+        <div id="track-notfound">We couldn't verify a shipment with that tracking number and phone number/postcode together. Please double-check both, or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.</div>
         <div id="track-result">
           <div class="track-meta">
             <div class="track-meta-grid">
@@ -1956,7 +1956,7 @@ async function doTrack(){
   const btn=document.getElementById('trackBtnEl');
   rEl.style.display='none';nEl.style.display='none';
   if(!v||!phone){
-    nEl.textContent='Please enter both your tracking number and the phone number used for booking.';
+    nEl.textContent='Please enter both your tracking number and the phone number or postcode used for booking.';
     nEl.style.display='block';
     return;
   }
@@ -1966,8 +1966,7 @@ async function doTrack(){
     const data=await res.json();
     btn.textContent='Track';btn.disabled=false;
     if(!data||!data.success||!data.shipment){
-      nEl.textContent="We couldn't verify a shipment with that tracking number and phone number together. Please double-check both, or contact us on WhatsApp.";
-      nEl.innerHTML='We couldn\'t verify a shipment with that tracking number and phone number together. Please double-check both, or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.';
+      nEl.innerHTML='We couldn\'t verify a shipment with that tracking number and phone number/postcode together. Please double-check both, or <a href="https://wa.me/message/JGCHRVI5FZW2B1" style="color:#dc2626;">contact us on WhatsApp</a>.';
       nEl.style.display='block';
       return;
     }
